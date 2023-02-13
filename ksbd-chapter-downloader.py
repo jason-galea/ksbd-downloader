@@ -29,6 +29,8 @@ def main():
 
     #########################################################################################
     ### Get URLs for posts
+    ### TODO: MULTITHREAD
+
     print("==> Fetching URLs for posts within given chapter")
     driver.find_element(By.LINK_TEXT, "Last »").click() ### For chronological order
 
@@ -60,8 +62,16 @@ def main():
 
     #########################################################################################
     ### Get URLs for posts
+    ### TODO: MULTITHREAD
 
-    # for url in post_urls()
+    # for post_url in post_urls():
+    #     driver.get(post_url)
+
+    #     comic_div = driver.find_element(By.XPATH, "//div[@id='comic']*")
+    #     children_elements = comic_div.find_elements(By.XPATH, "*img")
+
+    #     for possible_image in children_elements:
+    #         if possible_image
 
 
 
