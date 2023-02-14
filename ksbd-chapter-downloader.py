@@ -73,12 +73,13 @@ def navigate_pages(driver: webdriver.Firefox):
         ### Iterate through posts
         for post_url in post_urls:
             driver.get(post_url)
-            print(f"==> Navigated to post '{post_url}'")
+            # print(f"==> Navigated to post '{post_url}'")
 
             imgs = driver.find_elements(
                 By.XPATH,
                 "//img[starts-with(@src,'https://killsixbilliondemons.com/wp-content/uploads/')]",
             )
+
             for img in imgs:
                 print(img.get_attribute("src"))
 
