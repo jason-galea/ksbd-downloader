@@ -8,6 +8,39 @@ from selenium.webdriver.common.by import By
 
 
 #########################################################################################
+### Functions
+def process_pages(page_url):
+    driver.get(page_url)
+    print(f"==> Navigated to page '{page_url}'")
+
+    ### Detect "post" URLs
+    posts = driver.find_elements(By.XPATH, "//*[@class='post-title']/a") ### Get "a"
+    posts.reverse() ### For chronological order
+    post_urls = [p.get_attribute("href") for p in posts]
+
+
+    ### Iterate through posts
+    # for post_url in post_urls:
+    #     process_posts(post_url)
+    with Pool(4) as p:
+        p.map(process_posts, post_urls)
+
+def process_posts(post_url):
+    driver.get(post_url)
+    # print(f"==> Navigated to post '{post_url}'")
+
+    ### Search for images within post
+    ### NOTE: 9/10 times this is a single image
+    imgs = driver.find_elements(
+        By.XPATH,
+        "//img[starts-with(@src,'https://killsixbilliondemons.com/wp-content/uploads/')]",
+    )
+
+    for img in imgs:
+        print(img.get_attribute("src"))
+
+
+#########################################################################################
 ### Globals
 BOOK_5_URL = "https://killsixbilliondemons.com/chapter/book-5-breaker-of-infinities/"
 
@@ -19,6 +52,8 @@ def main():
     print("==> Initialising driver")
     driver_options = Options()
     driver_options.add_argument("--headless")
+
+    global driver
     driver = webdriver.Firefox(
         options=driver_options,
     )
@@ -42,29 +77,11 @@ def main():
     page_urls.reverse()
 
 
-    ### TODO: You know what to do haha
+    ### Iterate through pages
     for page_url in page_urls:
-        driver.get(page_url)
-        print(f"==> Navigated to page '{page_url}'")
-
-        ### Detect "post" URLs
-        posts = driver.find_elements(By.XPATH, "//*[@class='post-title']/a") ### Get "a"
-        posts.reverse() ### For chronological order
-        post_urls = [p.get_attribute("href") for p in posts]
-
-
-        ### Iterate through posts
-        for post_url in post_urls:
-            driver.get(post_url)
-            # print(f"==> Navigated to post '{post_url}'")
-
-            imgs = driver.find_elements(
-                By.XPATH,
-                "//img[starts-with(@src,'https://killsixbilliondemons.com/wp-content/uploads/')]",
-            )
-
-            for img in imgs:
-                print(img.get_attribute("src"))
+        process_pages(page_url)
+    # with Pool(4) as p:
+    #     p.map(process_pages, page_urls)
 
 
 if (__name__ == "__main__"):
