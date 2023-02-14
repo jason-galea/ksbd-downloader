@@ -8,120 +8,80 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
-#########################################################################################
-### Functions
-def calculate_page_urls():
-    print("==> Started calculating page URLs")
 
-    last_page_url = driver.find_element(By.LINK_TEXT, "Last »").get_attribute("href")
-    last_page_no = int( re.search("[0-9]*\/$", last_page_url).group().replace("/", "") )
-
-    page_urls = [f"{BOOK_5_URL}/page/{i}" for i in range(last_page_no + 1)]
-    page_urls[0] = BOOK_5_URL ### Correct first page
-    page_urls.reverse()
-
-    print("==> Finished calculating page URLs")
-    return page_urls
-
-def scrape_post_urls(page_urls):
-    print("==> Started scraping post URLs")
-
-    post_urls = []
-    for page_url in page_urls:
-        driver.get(page_url)
-        print(f"==> Navigated to page '{page_url}'")
-
-        ### Detect "post" URLs
-        posts = driver.find_elements(By.XPATH, "//*[@class='post-title']/a") ### Get "a"
-        posts.reverse() ### For chronological order
-
-        post_urls = post_urls + [p.get_attribute("href") for p in posts]
-
-    print("==> Finished scraping post URLs")
-    return post_urls
-
-def scrape_image_urls(post_urls):
-    print("==> Started scraping image URLs")
-
-    image_urls = []
-    for post_url in post_urls:
-        driver.get(post_url)
-        # print(f"==> Navigated to post '{post_url}'")
-
-        imgs = driver.find_elements(
-            by=By.XPATH,
-            value=f"//img[starts-with(@src,'{WP_CONTENT_URL}')]",
-        )
-        image_urls = image_urls + [i.get_attribute("src") for i in imgs]
-
-    print("==> Finished scraping image URLs")
-    return image_urls
-  
-def download_images(image_urls):
-    print("==> Started downloading images")
-
-    download_prefix = 1
-    for image_url in image_urls:
-        filename = f"{DESTINATION_DIR}/{download_prefix}-{os.path.basename(image_url)}"
-
-        print(f"==> Downloading '{image_url}' to '{filename}'")
-        # request.urlretrieve(img_url, filename)
-
-        download_prefix += 1
-        
-    print("==> Finished downloading images")
-
-
-#########################################################################################
-### Globals
-BOOK_5_URL = "https://killsixbilliondemons.com/chapter/book-5-breaker-of-infinities"
-WP_CONTENT_URL = "https://killsixbilliondemons.com/wp-content/uploads/"
-DESTINATION_DIR = f"./downloads/{os.path.basename(BOOK_5_URL)}"
-
-
-#########################################################################################
 def main():
 
+    ### Vars
+    ### NOTE: These extras are for testing only, using them will break the filename prefix
+    # FIRST_COMIC = "https://killsixbilliondemons.com/comic/king-of-swords-174-177-finale/"
+    # FIRST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-9-to-1-10/"
+    # FIRST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-37-to-1-38/"
+    # FIRST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-3-82-to-3-83/"
+
+    FIRST_COMIC = "https://killsixbilliondemons.com/comic/kill-six-billion-demons-breaker-of-infinities/"
+    LAST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-4-182-to-4-183/"
+    DOWNLOAD_DIR = "./downloads/book-5-breaker-of-infinities"
+    
+
+    ### Help text
+    # print(f"==> This script will download all pages from:")
+    # print(f"==> \t'{FIRST_COMIC}'")
+    # print(f"==> To:")
+    # print(f"==> \t'{LAST_COMIC}'")
+    # print(f"==> They will be downloaded to directory: '{DOWNLOAD_DIR}'")
+    # print()
 
     ### Check/Create dir
-    if not (os.path.exists(DESTINATION_DIR)):
-        print(f"==> Creating destination directory '{DESTINATION_DIR}'")
-        os.mkdir(DESTINATION_DIR)
+    if not (os.path.exists(DOWNLOAD_DIR)):
+        print(f"==> Creating destination directory '{DOWNLOAD_DIR}'")
+        os.mkdir(DOWNLOAD_DIR)
 
-    ### Init
-    print("==> Initialising driver")
+    ### Create webdriver
+    print("==> Initialising webdriver")
     driver_options = Options()
     driver_options.add_argument("--headless")
-    global driver
     driver = webdriver.Firefox(
         options=driver_options,
     )
 
-    print(f"==> Loading '{BOOK_5_URL}'")
-    driver.get(BOOK_5_URL)
+    ### Initial load
+    print(f"==> Loading FIRST_COMIC: '{FIRST_COMIC}'")
+    driver.get(FIRST_COMIC)
+
+    ### Download
+    # download_prefix = 1
+    while True:
+        print(f"==> Navigated to '{driver.current_url}'")
+
+        ### Find image elements
+        imgs = driver.find_elements(
+            by=By.XPATH,
+            value="//img[contains(@src,'killsixbilliondemons.com/wp-content/uploads/')]",
+        )
+
+        ### Download image(s)
+        for image_url in [i.get_attribute("src") for i in imgs]:
+            # print(f"==> Found image URL '{image_url}'")
+            
+            # filename = f"{DOWNLOAD_DIR}/{download_prefix}-{os.path.basename(image_url)}"
+            filename = f"{DOWNLOAD_DIR}/{os.path.basename(image_url)}"
+
+            if not (os.path.exists(filename)):
+                print(f"==> Downloading '{image_url}' to '{filename}'")
+                request.urlretrieve(image_url, filename)
+            else:
+                print(f"==> WARNING: File '{filename}' already exists")
+
+            # download_prefix += 1
 
 
-    #########################################################################################
-    ### Begin
-    page_urls = calculate_page_urls()
-    print(page_urls)
+        ### Boilerplate
+        if (driver.current_url != LAST_COMIC):
+            driver.find_element(By.LINK_TEXT, "Next >").click()
+        else:
+            print(f"==> Reached LAST_COMIC: {LAST_COMIC}")
+            exit(0)
 
-
-    #########################################################################################
-    ### Scrape post URLs
-    post_urls = scrape_post_urls(page_urls)
-    print(post_urls)
-
-
-    #########################################################################################
-    ### Scrape image URLs
-    image_urls = scrape_image_urls(post_urls)
-    print(image_urls)
-
-
-    #########################################################################################
-    ### Download images
-    # download_images(image_urls)
 
 
 if (__name__ == "__main__"):
