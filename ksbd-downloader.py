@@ -21,6 +21,8 @@ def main():
     FIRST_COMIC = "https://killsixbilliondemons.com/comic/kill-six-billion-demons-breaker-of-infinities/"
     LAST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-4-182-to-4-183/"
     DOWNLOAD_DIR = "./downloads/book-5-breaker-of-infinities"
+    PAGE_NO = 0 ### "0" for the cover page
+    PAGE_NO_LENGTH = 4 ### "1-page" --> "0001-page"
     
 
     ### Help text
@@ -49,7 +51,6 @@ def main():
     driver.get(FIRST_COMIC)
 
     ### Download
-    # download_prefix = 1
     while True:
         print(f"==> Navigated to '{driver.current_url}'")
 
@@ -63,16 +64,21 @@ def main():
         for image_url in [i.get_attribute("src") for i in imgs]:
             # print(f"==> Found image URL '{image_url}'")
             
-            # filename = f"{DOWNLOAD_DIR}/{download_prefix}-{os.path.basename(image_url)}"
-            filename = f"{DOWNLOAD_DIR}/{os.path.basename(image_url)}"
+            # filename = f"{DOWNLOAD_DIR}/{os.path.basename(image_url)}"
+            page_no_zfilled = str(PAGE_NO).zfill(PAGE_NO_LENGTH)
+            image_basename = os.path.basename(image_url)
+            filename = f"{DOWNLOAD_DIR}/{page_no_zfilled}-{image_basename}"
 
-            if not (os.path.exists(filename)):
-                print(f"==> Downloading '{image_url}' to '{filename}'")
-                request.urlretrieve(image_url, filename)
-            else:
-                print(f"==> WARNING: File '{filename}' already exists")
+            # if not (os.path.exists(filename)):
+            #     print(f"==> Downloading '{image_url}' to '{filename}'")
+            #     request.urlretrieve(image_url, filename)
+            # else: ### NOTE: Does this actually happen?
+            #     print(f"==> WARNING: File '{filename}' already exists")
 
-            # download_prefix += 1
+            print(f"==> Downloading '{image_url}' to '{filename}'")
+            request.urlretrieve(image_url, filename)
+
+            PAGE_NO += 1
 
 
         ### Boilerplate
