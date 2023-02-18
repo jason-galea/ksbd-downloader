@@ -12,7 +12,7 @@ from selenium.webdriver.common.by import By
 def main():
 
     ### Vars
-    ### NOTE: These extras are for testing only, using them will break the filename prefix
+    ### NOTE: Obviously these test vars will give incorrect page number prefixes
     # FIRST_COMIC = "https://killsixbilliondemons.com/comic/king-of-swords-174-177-finale/"
     # FIRST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-9-to-1-10/"
     # FIRST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-37-to-1-38/"
@@ -20,7 +20,8 @@ def main():
 
     FIRST_COMIC = "https://killsixbilliondemons.com/comic/kill-six-billion-demons-breaker-of-infinities/"
     LAST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-4-182-to-4-183/"
-    DOWNLOAD_DIR = "./downloads/book-5-breaker-of-infinities"
+    DOWNLOAD_DIR = f"{os.getcwd()}/downloads/book-5-breaker-of-infinities"
+    
     # PAGE_NO = 0 ### "0" for the cover page
     # PAGE_NO_LENGTH = 4 ### "1-page" --> "0001-page"
     
@@ -36,7 +37,7 @@ def main():
     ### Check/Create dir
     if not (os.path.exists(DOWNLOAD_DIR)):
         print(f"==> Creating destination directory '{DOWNLOAD_DIR}'")
-        os.mkdir(DOWNLOAD_DIR)
+        os.makedirs(DOWNLOAD_DIR)
 
     ### Create webdriver
     print("==> Initialising webdriver")
@@ -70,11 +71,14 @@ def main():
             driver.find_element(By.LINK_TEXT, "Next >").click()
         else:
             # print(f"==> Reached LAST_COMIC: {LAST_COMIC}")
-            print(f"==> Finished scraping image URLs")
+            print(f"==> Scraped {len(image_urls)} URLs")
             break
+
+    print(f"==> DEBUG: image_urls = {image_urls}")
 
     ### Detect page no. zfill length
     page_no_zfill_length = len(image_urls) - 1 ### -1 to make the cover page no. = 0
+    print(f"==> Detected page no. zfill length of {page_no_zfill_length}")
 
     ### Download images
     for page_no, image_url in enumerate(image_urls):
@@ -90,7 +94,7 @@ def main():
         # else: ### NOTE: Does this actually happen?
         #     print(f"==> WARNING: File '{filename}' already exists")
 
-        print(f"==> Downloading '{image_url}' to '{filename}'")
+        print(f"==> Downloading '{image_url}' to '{os.path.basename(filename)}'")
         # request.urlretrieve(image_url, filename)
 
 
