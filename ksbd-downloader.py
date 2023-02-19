@@ -22,7 +22,7 @@ def scrape_image_urls():
 
     ### Scrape image URLs
     # print(f"==> Scraping image URLs")
-    driver.get(FIRST_COMIC)
+    driver.get(FIRST_PAGE)
 
     image_urls = []
     while True:
@@ -44,7 +44,7 @@ def scrape_image_urls():
         image_urls += temp_image_urls
 
         ### Boilerplate
-        if (driver.current_url != LAST_COMIC):
+        if (driver.current_url != LAST_PAGE):
             driver.find_element(By.LINK_TEXT, "Next >").click()
         else:
             print(f"==> Finished scraping URLs")
@@ -85,33 +85,40 @@ def download_images(image_urls):
 ################################################################################################
 ### GLOBALS
 ### NOTE: Obviously these test vars will give incorrect page number prefixes
-# FIRST_COMIC = "https://killsixbilliondemons.com/comic/king-of-swords-174-177-finale/"
-# FIRST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-9-to-1-10/"
-# FIRST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-37-to-1-38/"
-# FIRST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-3-82-to-3-83/"
-# LAST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-9-to-1-10/"
-# LAST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-37-to-1-38/"
+# FIRST_PAGE = "https://killsixbilliondemons.com/comic/king-of-swords-174-177-finale/"
+# FIRST_PAGE = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-9-to-1-10/"
+# FIRST_PAGE = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-37-to-1-38/"
+# FIRST_PAGE = "https://killsixbilliondemons.com/comic/breaker-of-infinities-3-82-to-3-83/"
+# LAST_PAGE = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-9-to-1-10/"
+# LAST_PAGE = "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-37-to-1-38/"
 
-FIRST_COMIC = "https://killsixbilliondemons.com/comic/kill-six-billion-demons-breaker-of-infinities/"
-LAST_COMIC = "https://killsixbilliondemons.com/comic/breaker-of-infinities-4-182-to-4-183/"
+# ### Book 5: Breaker of Infinities
+# FIRST_PAGE = "https://killsixbilliondemons.com/comic/kill-six-billion-demons-breaker-of-infinities/"
+# LAST_PAGE = "https://killsixbilliondemons.com/comic/breaker-of-infinities-4-182-to-4-183/"
+# BOOK_TITLE = "book-5-breaker-of-infinities"
+
+### Book 6: Wheel Smashing Lord
+FIRST_PAGE = "https://killsixbilliondemons.com/comic/kill-six-billion-demons-wheel-smashing-lord/"
+LAST_PAGE = "https://killsixbilliondemons.com/comic/wheel-smashing-lord-1-3/"
+BOOK_TITLE = "book-6-wheel-smashing-lord"
 
 CWD = os.getcwd()
-FIRST_COMIC_BASENAME = os.path.basename( FIRST_COMIC.removesuffix("/") ).replace("_", "-")
-LAST_COMIC_BASENAME = os.path.basename( LAST_COMIC.removesuffix("/") ).replace("_", "-")
-IMAGE_URLS_FILE = f"{CWD}/downloads/image_urls_{FIRST_COMIC_BASENAME}_to_{LAST_COMIC_BASENAME}.txt"
-DOWNLOAD_DIR = f"{CWD}/downloads/book-5-breaker-of-infinities"
+FIRST_PAGE_BASENAME = os.path.basename( FIRST_PAGE.removesuffix("/") ).replace("_", "-")
+LAST_PAGE_BASENAME = os.path.basename( LAST_PAGE.removesuffix("/") ).replace("_", "-")
+IMAGE_URLS_FILE = f"{CWD}/downloads/image_urls_{FIRST_PAGE_BASENAME}_to_{LAST_PAGE_BASENAME}.txt"
+DOWNLOAD_DIR = f"{CWD}/downloads/{BOOK_TITLE}"
 HELP_TEXT = f"""
 ==> This script will download all pages from:
-==> \t'{FIRST_COMIC}
+==> \t'{FIRST_PAGE}
 ==> To:
-==> \t'{LAST_COMIC}
+==> \t'{LAST_PAGE}
 ==> They will be downloaded to directory: '{DOWNLOAD_DIR}
 """
 
-# print(f"DEBUG: LAST_COMIC = {LAST_COMIC}")
-# print(f"DEBUG: LAST_COMIC_BASENAME = {LAST_COMIC_BASENAME}")
-# print(f"DEBUG: FIRST_COMIC = {FIRST_COMIC}")
-# print(f"DEBUG: FIRST_COMIC_BASENAME = {FIRST_COMIC_BASENAME}")
+# print(f"DEBUG: LAST_PAGE = {LAST_PAGE}")
+# print(f"DEBUG: LAST_PAGE_BASENAME = {LAST_PAGE_BASENAME}")
+# print(f"DEBUG: FIRST_PAGE = {FIRST_PAGE}")
+# print(f"DEBUG: FIRST_PAGE_BASENAME = {FIRST_PAGE_BASENAME}")
 # print(f"DEBUG: IMAGE_URLS_FILE = {IMAGE_URLS_FILE}")
 # print(f"DEBUG: DOWNLOAD_DIR = {DOWNLOAD_DIR}")
 
