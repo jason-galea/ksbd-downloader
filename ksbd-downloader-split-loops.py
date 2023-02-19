@@ -76,7 +76,7 @@ def download_images(image_urls):
             print(f"==> Downloading '{image_url}' to '{os.path.basename(filename)}'")
             request.urlretrieve(image_url, filename)
         else:
-            print(f"==> WARNING: File '{filename}' already exists")
+            print(f"==> WARNING: File '{os.path.basename(filename)}' already exists")
 
         # print(f"==> Downloading '{image_url}' to '{os.path.basename(filename)}'")
         # request.urlretrieve(image_url, filename)
