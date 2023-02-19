@@ -141,6 +141,8 @@ def main():
 
     download_images(image_urls)
 
+    print(f"==> ALL DONE!!!!")
+
 
 if (__name__ == "__main__"):
     main()
