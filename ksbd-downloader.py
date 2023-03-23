@@ -99,7 +99,8 @@ def download_images(image_urls):
 
 ### Book 6: Wheel Smashing Lord
 FIRST_PAGE = "https://killsixbilliondemons.com/comic/kill-six-billion-demons-wheel-smashing-lord/"
-LAST_PAGE = "https://killsixbilliondemons.com/comic/wheel-smashing-lord-1-3/"
+# LAST_PAGE = "https://killsixbilliondemons.com/comic/wheel-smashing-lord-1-3/"
+LAST_PAGE = "https://killsixbilliondemons.com/comic/wheel-smashing-lord-1-9-to-1-10/"
 BOOK_TITLE = "book-6-wheel-smashing-lord"
 
 CWD = os.getcwd()
@@ -112,7 +113,7 @@ HELP_TEXT = f"""
 ==> \t'{FIRST_PAGE}
 ==> To:
 ==> \t'{LAST_PAGE}
-==> They will be downloaded to directory: '{DOWNLOAD_DIR}
+==> They will be downloaded to directory: '{DOWNLOAD_DIR}'
 """
 
 # print(f"DEBUG: LAST_PAGE = {LAST_PAGE}")
