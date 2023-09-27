@@ -1,4 +1,4 @@
 #!/usr/bin/bash
 
-echo "$ sudo apt install -y firefox firefox-geckodriver"
+echo "==> Installing firefox & geckodriver"
 sudo apt install -y firefox firefox-geckodriver

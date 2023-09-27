@@ -100,7 +100,8 @@ def download_images(image_urls):
 ### Book 6: Wheel Smashing Lord
 FIRST_PAGE = "https://killsixbilliondemons.com/comic/kill-six-billion-demons-wheel-smashing-lord/"
 # LAST_PAGE = "https://killsixbilliondemons.com/comic/wheel-smashing-lord-1-3/"
-LAST_PAGE = "https://killsixbilliondemons.com/comic/wheel-smashing-lord-1-9-to-1-10/"
+# LAST_PAGE = "https://killsixbilliondemons.com/comic/wheel-smashing-lord-1-9-to-1-10/"
+LAST_PAGE = "https://killsixbilliondemons.com/comic/wheel-smashing-lord-2-46-to-2-47/"
 BOOK_TITLE = "book-6-wheel-smashing-lord"
 
 CWD = os.getcwd()
