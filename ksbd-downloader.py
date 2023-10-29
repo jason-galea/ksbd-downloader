@@ -189,7 +189,7 @@ def main(book: int, chapter: int, dont_get_details: bool, dont_get_images: bool)
         else:
             print(f"==> INFO: Detected existing chapter details file '{chapter_details_file}'")
             with open(chapter_details_file, "r") as f:
-                chapter_details = json.loads(f)
+                chapter_details = json.load(f)
 
 
         print(f"==> DEBUG: chapter_details = {chapter_details}")
