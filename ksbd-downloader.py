@@ -6,7 +6,7 @@ import click
 # import pickle
 # import argparse
 
-from urllib import request
+# from urllib import request
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
@@ -19,8 +19,8 @@ BOOKS_INFO: list = [
         "chapters": [
             {
                 "start_url":    "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-1/",
-                # "end_url":      "https://killsixbilliondemons.com/comic/ksbd-1-17/"
-                "end_url":      "https://killsixbilliondemons.com/comic/ksbd-chapter-1-1/"
+                "end_url":      "https://killsixbilliondemons.com/comic/ksbd-1-17/"
+                # "end_url":      "https://killsixbilliondemons.com/comic/ksbd-chapter-1-1/"
             },
             {
                 "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-0/",
@@ -130,21 +130,6 @@ def main(
     force_get_images: bool
 ):
 
-    CWD = os.getcwd()
-    DOWNLOAD_DIR = f"{CWD}/out"
-    BOOK_DIR = f"{CWD}/out/{book}-{BOOKS_INFO[book-1]['name']}"
-
-
-    # print(f"==> DEBUG: book = {book}")
-    # print(f"==> DEBUG: chapter = {chapter}")
-    # print(f"==> DEBUG: get_details = {dont_get_details}")
-    # print(f"==> DEBUG: get_images = {dont_get_images}")
-    # print(f"==> DEBUG: CWD = {CWD}")
-    print(f"==> DEBUG: DOWNLOAD_DIR = {DOWNLOAD_DIR}")
-    print(f"==> DEBUG: BOOK_DIR = {BOOK_DIR}")
-    print()
-
-
     ### Args
     if not book:
         exit(f"==> ERROR: Please provide the number of the book to download, from 1-6")
@@ -157,6 +142,21 @@ def main(
 
     if (dont_get_details and dont_get_images):
         exit(f"==> ERROR: You must download either page details or images, exiting early")
+
+
+    ### Vars
+    CWD = os.getcwd()
+    DOWNLOAD_DIR = f"{CWD}/out"
+    BOOK_DIR = f"{CWD}/out/{book}-{BOOKS_INFO[book-1]['name']}"
+
+    # print(f"==> DEBUG: book = {book}")
+    # print(f"==> DEBUG: chapter = {chapter}")
+    # print(f"==> DEBUG: get_details = {dont_get_details}")
+    # print(f"==> DEBUG: get_images = {dont_get_images}")
+    # print(f"==> DEBUG: CWD = {CWD}")
+    print(f"==> DEBUG: DOWNLOAD_DIR = {DOWNLOAD_DIR}")
+    print(f"==> DEBUG: BOOK_DIR = {BOOK_DIR}")
+    print()
 
 
     ### Create dirs
@@ -221,13 +221,13 @@ def create_dirs(dir_path: str):
 
 
 def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str) -> list:
-    print(f"==> INFO: Entered get_chapter_details()")
+    print(f"==> DEBUG: Entered get_chapter_details()")
 
     driver.get(start_url)
 
     chapter_details = []
     while True:
-        print(f"==> INFO: Navigated to '{driver.current_url}'")
+        # print(f"==> DEBUG: Navigated to '{driver.current_url}'")
 
         title_ele = driver.find_element(By.CLASS_NAME, "post-title")
 
@@ -249,16 +249,12 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
         
         temp_page_details = {
             "title":        title_ele.text,
-            "entry_html":   entry_ele_children_extracted,
+            "image_urls":   [i.get_attribute("src") for i in img_eles],
             "alt_text":     img_eles[0].get_attribute('alt'),
-            "image_urls":   [i.get_attribute("src") for i in img_eles]
+            "desc_list":    entry_ele_children_extracted,
         }
 
-        
         print(f"==> DEBUG: temp_page_details = {json.dumps(temp_page_details, indent=4)}")
-
-
-        ### Boilerplate
         if (driver.current_url != end_url):
             driver.find_element(By.LINK_TEXT, "Next >").click()
             chapter_details.append(temp_page_details)
@@ -270,22 +266,6 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
     return chapter_details
 
 
-    # return [
-    #     ### Page 1
-    #     {
-    #         "title":        "",
-    #         "entry_html":   "",
-    #         "alt_text":     "",
-    #         "image_urls":   [
-    #             "IMAAAMGE URLA 11!",
-    #             "AUJAIAIUAIIIIIMAGE URRLLLL @@@2",
-    #         ],
-    #     },
-    #     ### Page ...
-    #     {},
-    # ]
-
-
 def get_chapter_images(chapter_dir: str, chapter_details: list):
     print(f"==> INFO: Entered get_chapter_images()")
 
@@ -294,56 +274,6 @@ def get_chapter_images(chapter_dir: str, chapter_details: list):
 
             image_path = f"{chapter_dir}/"
             print(f"==> INFO: Downloading image '{image}'")
-
-
-
-# def scrape_image_urls():
-
-#     ### Create webdriver
-#     print("==> INFO: Initialising webdriver")
-#     driver_options = Options()
-#     driver_options.add_argument("--headless")
-#     driver = webdriver.Firefox(
-#         options=driver_options,
-#     )
-
-#     ### Scrape image URLs
-#     # print(f"==> INFO: Scraping image URLs")
-#     driver.get(FIRST_PAGE)
-
-#     image_urls = []
-#     while True:
-#         print(f"==> INFO: Navigated to '{driver.current_url}'")
-
-#         ### Find image elements
-#         temp_image_urls = driver.find_elements(
-#             by=By.XPATH,
-#             value="//img[contains(@src,'killsixbilliondemons.com/wp-content/uploads/')]",
-#         )
-
-#         ### Save URLs to list (Without printing)
-#         # image_urls += [i.get_attribute("src") for i in temp_image_urls]
-
-#         ### Save URLs to list (With printing)
-#         temp_image_urls = [i.get_attribute("src") for i in temp_image_urls]
-#         for image_url in temp_image_urls:
-#             print(f"==> INFO: Found image URL '{image_url}'")
-#         image_urls += temp_image_urls
-
-#         ### Boilerplate
-#         if (driver.current_url != LAST_PAGE):
-#             driver.find_element(By.LINK_TEXT, "Next >").click()
-#         else:
-#             print(f"==> INFO: Finished scraping URLs")
-#             break
-
-#     ### Save image URLs to disk
-#     print(f"==> INFO: Saving image URLs to disk")
-#     with open(IMAGE_URLS_FILE, "wb") as f:
-#         # pickle.dump(image_urls, f)
-#         f.write('\n'.join(image_urls))
-
-#     return image_urls
 
 
 # def download_images(image_urls):
