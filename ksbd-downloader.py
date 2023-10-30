@@ -3,13 +3,16 @@
 import os
 import json
 import click
+# import urllib
 # import pickle
 # import argparse
 
-# from urllib import request
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
+from urllib.request import urlretrieve
+from urllib.parse import urlparse
+from glob import glob
 
 
 BOOKS_INFO: list = [
@@ -22,8 +25,8 @@ BOOKS_INFO: list = [
                 "end_url":      "https://killsixbilliondemons.com/comic/ksbd-1-17/"
             },
             {
-                # "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-0/",
-                "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-34/",
+                "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-0/",
+                # "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-34/",
                 "end_url":      "https://killsixbilliondemons.com/comic/prim-leaves-her-fathers-house/"
             },
             {
@@ -146,7 +149,7 @@ def main(
 
     ### Vars
     CWD = os.getcwd()
-    DOWNLOAD_DIR = f"{CWD}/out"
+    # DOWNLOAD_DIR = f"{CWD}/out"
     BOOK_DIR = f"{CWD}/out/{book}-{BOOKS_INFO[book-1]['name']}"
 
     # print(f"==> DEBUG: book = {book}")
@@ -154,14 +157,14 @@ def main(
     # print(f"==> DEBUG: get_details = {dont_get_details}")
     # print(f"==> DEBUG: get_images = {dont_get_images}")
     # print(f"==> DEBUG: CWD = {CWD}")
-    print(f"==> DEBUG: DOWNLOAD_DIR = {DOWNLOAD_DIR}")
-    print(f"==> DEBUG: BOOK_DIR = {BOOK_DIR}")
-    print()
+    # print(f"==> DEBUG: DOWNLOAD_DIR = {DOWNLOAD_DIR}")
+    # print(f"==> DEBUG: BOOK_DIR = {BOOK_DIR}")
+    # print()
 
 
     ### Create dirs
     # create_dirs(DOWNLOAD_DIR)
-    # create_dirs(BOOK_DIR)
+    create_dirs(BOOK_DIR)
 
     
     ### Create webdriver
@@ -172,22 +175,18 @@ def main(
         options=driver_options,
     )
 
-    
+
     for c in chapters:
         
-        chapter_dir = f"{BOOK_DIR}/{c+1}"
-        chapter_details_file = f"{BOOK_DIR}/{c+1}/details.json"
-
-        create_dirs(chapter_dir)
-
-        if force_get_details:
-            try:
-                os.remove(chapter_details_file)
-            except FileNotFoundError:
-                pass
+        chapter_details_file = f"{BOOK_DIR}/{c+1}-details.json"
 
 
         ### Get details
+        ### TODO: Improve logic
+        if (force_get_details) and (os.path.exists(chapter_details_file)):
+            print(f"==> INFO: 'force_get_details' enabled, removing '{os.path.basename(chapter_details_file)}'")
+            os.remove(chapter_details_file)
+
         if not os.path.exists(chapter_details_file):
 
             if not dont_get_details:
@@ -198,21 +197,30 @@ def main(
                     # json.dump(chapter_details, f, indent=4, ensure_ascii=False)
                     f.write(standard_json_dumps(chapter_details))
             else:
-                print(f"==> INFO: Skip getting chapter details due to 'dont_get_details'")
+                print(f"==> INFO: Skipped downloading chapter details due to 'dont_get_details'")
 
         else:
             print(f"==> INFO: Detected existing chapter details file '{chapter_details_file}'")
             with open(chapter_details_file, "r", encoding="utf8") as f:
                 chapter_details = json.load(f)
 
-
         # # print(f"==> DEBUG: chapter_details = {json.dumps(chapter_details, indent=4, ensure_ascii=False)}")
         # print(f"==> DEBUG: chapter_details = {standard_json_dumps(chapter_details)}")
 
-        
+
         ### Get images
         if not dont_get_images:
-            get_chapter_images(chapter_dir, chapter_details)
+
+            if force_get_images:
+                print(f"==> INFO: 'force_get_images' enabled, will remove existing images")
+                for i in glob(f"{BOOK_DIR}/{c+1}-*.jpg"):
+                    os.remove(i)
+                    print(f"==> INFO: Removed existing image '{os.path.basename(i)}'")
+
+            get_chapter_images(BOOK_DIR, chapter_details, c)
+
+        else:
+            print(f"==> INFO: Skipped downloading images due to 'dont_get_images'")
 
 
 def create_dirs(dir_path: str) -> None:
@@ -226,7 +234,7 @@ def standard_json_dumps(var: any) -> str:
 
 
 def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str) -> list:
-    print(f"==> DEBUG: Entered get_chapter_details()")
+    # print(f"==> DEBUG: Entered get_chapter_details()")
 
     driver.get(start_url)
 
@@ -238,8 +246,8 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
 
         entry_ele = driver.find_element(By.CLASS_NAME, "entry")
         entry_ele_children = entry_ele.find_elements(By.CSS_SELECTOR, "*")
-        entry_ele_children_extracted = []
 
+        entry_ele_children_extracted = []
         for e in entry_ele_children:
             if e.tag_name == "p":
                 entry_ele_children_extracted.append(e.text)
@@ -251,7 +259,7 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
         img_eles = driver.find_elements(By.XPATH,
             "//img[contains(@src,'killsixbilliondemons.com/wp-content/uploads/')]",
         )
-        
+
         temp_page_details = {
             "title":        title_ele.text,
             "image_urls":   [i.get_attribute("src") for i in img_eles],
@@ -259,8 +267,9 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
             "desc_list":    entry_ele_children_extracted,
         }
 
-        # # print(f"==> DEBUG: temp_page_details = {json.dumps(temp_page_details, indent=4, ensure_ascii=False)}")
+        # print(f"==> DEBUG: temp_page_details = {json.dumps(temp_page_details, indent=4, ensure_ascii=False)}")
         # print(f"==> DEBUG: temp_page_details = {standard_json_dumps(temp_page_details)}")
+        print(f"==> INFO: Fetched details for page '{temp_page_details['title']}'")
 
         chapter_details.append(temp_page_details)
 
@@ -274,39 +283,23 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
     return chapter_details
 
 
-def get_chapter_images(chapter_dir: str, chapter_details: list) -> None:
-    print(f"==> INFO: Entered get_chapter_images()")
+def get_chapter_images(dir: str, chapter_details: list, chapter_no: int) -> None:
+    # print(f"==> DEBUG: Entered get_chapter_images()")
+
+    page_no = 0
 
     for page in chapter_details:
-        for image in page["image_urls"]:
+        for image_url in page["image_urls"]:
 
-            image_path = f"{chapter_dir}/"
-            print(f"==> INFO: Downloading image '{image}'")
+            image_url_parsed = urlparse(image_url)
+            original_image_file = os.path.basename(image_url_parsed.path)
+            image_file = f"{dir}/{chapter_no+1}-{str(page_no).zfill(2)}-{original_image_file}"
 
+            print(f"==> INFO: Downloading image to '{os.path.basename(image_file)}'")
 
-# def download_images(image_urls):
+            urlretrieve(image_url, image_file)
 
-#     ### Detect page no. zfill length
-#     page_no_zfill_length = len(str( len(image_urls) - 1 )) ### -1 so cover page no. = 0
-#     print(f"==> Detected page no. zfill length of {page_no_zfill_length}")
-
-#     ### Download images
-#     for page_no, image_url in enumerate(image_urls):
-        
-#         # filename = f"{DOWNLOAD_DIR}/{os.path.basename(image_url)}"
-#         page_no_zfilled = str(page_no).zfill(page_no_zfill_length)
-#         image_basename = os.path.basename(image_url)
-#         filename = f"{DOWNLOAD_DIR}/{page_no_zfilled}-{image_basename}"
-
-#         ### Don't redownload images from previous runs
-#         if not (os.path.exists(filename)):
-#             print(f"==> Downloading '{image_url}' to '{os.path.basename(filename)}'")
-#             request.urlretrieve(image_url, filename)
-#         else:
-#             print(f"==> WARNING: File '{os.path.basename(filename)}' already exists")
-
-#         # print(f"==> Downloading '{image_url}' to '{os.path.basename(filename)}'")
-#         # request.urlretrieve(image_url, filename)
+            page_no += 1
 
 
 if (__name__ == "__main__"):
