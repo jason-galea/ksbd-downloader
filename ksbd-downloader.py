@@ -20,10 +20,10 @@ BOOKS_INFO: list = [
             {
                 "start_url":    "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-1/",
                 "end_url":      "https://killsixbilliondemons.com/comic/ksbd-1-17/"
-                # "end_url":      "https://killsixbilliondemons.com/comic/ksbd-chapter-1-1/"
             },
             {
-                "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-0/",
+                # "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-0/",
+                "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-34/",
                 "end_url":      "https://killsixbilliondemons.com/comic/prim-leaves-her-fathers-house/"
             },
             {
@@ -194,19 +194,20 @@ def main(
                 chapter_details = get_chapter_details(driver, **BOOKS_INFO[book-1]["chapters"][c])
 
                 print(f"==> INFO: Writing chapter details to '{chapter_details_file}'")
-                with open(chapter_details_file, "w") as f:
-                    f.write(json.dumps(chapter_details, indent=4))
-
+                with open(chapter_details_file, "w", encoding="utf8") as f:
+                    # json.dump(chapter_details, f, indent=4, ensure_ascii=False)
+                    f.write(standard_json_dumps(chapter_details))
             else:
                 print(f"==> INFO: Skip getting chapter details due to 'dont_get_details'")
 
         else:
             print(f"==> INFO: Detected existing chapter details file '{chapter_details_file}'")
-            with open(chapter_details_file, "r") as f:
+            with open(chapter_details_file, "r", encoding="utf8") as f:
                 chapter_details = json.load(f)
 
 
-        print(f"==> DEBUG: chapter_details = {json.dumps(chapter_details, indent=4)}")
+        # # print(f"==> DEBUG: chapter_details = {json.dumps(chapter_details, indent=4, ensure_ascii=False)}")
+        # print(f"==> DEBUG: chapter_details = {standard_json_dumps(chapter_details)}")
 
         
         ### Get images
@@ -214,10 +215,14 @@ def main(
             get_chapter_images(chapter_dir, chapter_details)
 
 
-def create_dirs(dir_path: str):
+def create_dirs(dir_path: str) -> None:
     if not (os.path.exists(dir_path)):
         print(f"==> INFO: Creating directory '{dir_path}'")
         os.makedirs(dir_path)
+
+
+def standard_json_dumps(var: any) -> str:
+    return json.dumps(var, indent=4, ensure_ascii=False)
 
 
 def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str) -> list:
@@ -254,11 +259,14 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
             "desc_list":    entry_ele_children_extracted,
         }
 
-        print(f"==> DEBUG: temp_page_details = {json.dumps(temp_page_details, indent=4)}")
+        # # print(f"==> DEBUG: temp_page_details = {json.dumps(temp_page_details, indent=4, ensure_ascii=False)}")
+        # print(f"==> DEBUG: temp_page_details = {standard_json_dumps(temp_page_details)}")
+
+        chapter_details.append(temp_page_details)
+
+
         if (driver.current_url != end_url):
             driver.find_element(By.LINK_TEXT, "Next >").click()
-            chapter_details.append(temp_page_details)
-
         else:
             print(f"==> INFO: Finished scraping URLs")
             break
@@ -266,7 +274,7 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
     return chapter_details
 
 
-def get_chapter_images(chapter_dir: str, chapter_details: list):
+def get_chapter_images(chapter_dir: str, chapter_details: list) -> None:
     print(f"==> INFO: Entered get_chapter_images()")
 
     for page in chapter_details:
