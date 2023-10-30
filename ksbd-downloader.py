@@ -119,7 +119,16 @@ BOOKS_INFO: list = [
 @click.option("-c", "--chapter", type=int, help="Chapter # to download. Defaults to downloading all chapters")
 @click.option("--dont_get_details", is_flag=True, help="Only download page details, ignoring images")
 @click.option("--dont_get_images", is_flag=True, help="Only download images, assuming image URLs are known")
-def main(book: int, chapter: int, dont_get_details: bool, dont_get_images: bool):
+@click.option("--force_get_details", is_flag=True, help="Ignore previously downloaded details")
+@click.option("--force_get_images", is_flag=True, help="Ignore previously downloaded images")
+def main(
+    book: int,
+    chapter: int,
+    dont_get_details: bool,
+    dont_get_images: bool,
+    force_get_details: bool,
+    force_get_images: bool
+):
 
     CWD = os.getcwd()
     DOWNLOAD_DIR = f"{CWD}/out"
@@ -166,11 +175,16 @@ def main(book: int, chapter: int, dont_get_details: bool, dont_get_images: bool)
     
     for c in chapters:
         
-        ### Damn you 0-indexing lol
         chapter_dir = f"{BOOK_DIR}/{c+1}"
         chapter_details_file = f"{BOOK_DIR}/{c+1}/details.json"
-        
+
         create_dirs(chapter_dir)
+
+        if force_get_details:
+            try:
+                os.remove(chapter_details_file)
+            except FileNotFoundError:
+                pass
 
 
         ### Get details
@@ -181,7 +195,7 @@ def main(book: int, chapter: int, dont_get_details: bool, dont_get_images: bool)
 
                 print(f"==> INFO: Writing chapter details to '{chapter_details_file}'")
                 with open(chapter_details_file, "w") as f:
-                    f.write(json.dumps(chapter_details))
+                    f.write(json.dumps(chapter_details, indent=4))
 
             else:
                 print(f"==> INFO: Skip getting chapter details due to 'dont_get_details'")
@@ -192,7 +206,7 @@ def main(book: int, chapter: int, dont_get_details: bool, dont_get_images: bool)
                 chapter_details = json.load(f)
 
 
-        print(f"==> DEBUG: chapter_details = {chapter_details}")
+        print(f"==> DEBUG: chapter_details = {json.dumps(chapter_details, indent=4)}")
 
         
         ### Get images
@@ -209,43 +223,39 @@ def create_dirs(dir_path: str):
 def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str) -> list:
     print(f"==> INFO: Entered get_chapter_details()")
 
-    # print(f"==> DEBUG: start_url = {start_url}")
-    # print(f"==> DEBUG: end_url = {end_url}")
-
-
-    ### Scrape image URLs
-    # print(f"==> INFO: Scraping image URLs")
     driver.get(start_url)
 
-
     chapter_details = []
-
     while True:
         print(f"==> INFO: Navigated to '{driver.current_url}'")
 
-        temp_title_element = driver.find_element(
-            by=By.CLASS_NAME,
-            value="post-title"
-        )
+        title_ele = driver.find_element(By.CLASS_NAME, "post-title")
 
-        temp_entry_html_element = driver.find_element(
-            by=By.CLASS_NAME,
-            value="entry"
-        )
+        entry_ele = driver.find_element(By.CLASS_NAME, "entry")
+        entry_ele_children = entry_ele.find_elements(By.CSS_SELECTOR, "*")
+        entry_ele_children_extracted = []
 
-        temp_img_elements = driver.find_elements(
-            by=By.XPATH,
-            value="//img[contains(@src,'killsixbilliondemons.com/wp-content/uploads/')]",
+        for e in entry_ele_children:
+            if e.tag_name == "p":
+                entry_ele_children_extracted.append(e.text)
+            elif (e.tag_name == "a") and ("title" in e.__dict__.keys()):
+                entry_ele_children_extracted.append(e.title)
+            elif e.tag_name == "img":
+                entry_ele_children_extracted.append(e.get_attribute("src"))
+
+        img_eles = driver.find_elements(By.XPATH,
+            "//img[contains(@src,'killsixbilliondemons.com/wp-content/uploads/')]",
         )
         
-
-
         temp_page_details = {
-            "title":        temp_title_element.text,
-            # "entry_html":   temp_entry_html_element.html,
-            "alt_text":     temp_img_elements[0].get_attribute('alt'),
-            "image_urls":   [i.get_attribute("src") for i in temp_img_elements]
+            "title":        title_ele.text,
+            "entry_html":   entry_ele_children_extracted,
+            "alt_text":     img_eles[0].get_attribute('alt'),
+            "image_urls":   [i.get_attribute("src") for i in img_eles]
         }
+
+        
+        print(f"==> DEBUG: temp_page_details = {json.dumps(temp_page_details, indent=4)}")
 
 
         ### Boilerplate
