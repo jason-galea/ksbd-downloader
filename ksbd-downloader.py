@@ -20,23 +20,25 @@ BOOKS_INFO: list = [
         "name":                 "kill-six-billion-demons",
         "title":                "Kill Six Billion Demons",
         "chapters": [
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-1/",
-                "end_url":      "https://killsixbilliondemons.com/comic/ksbd-1-17/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-0/",
-                # "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-34/",
-                "end_url":      "https://killsixbilliondemons.com/comic/prim-leaves-her-fathers-house/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/chapter-3/",
-                "end_url":      "https://killsixbilliondemons.com/comic/ksbd-3-53-54/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-4/",
-                "end_url":      "https://killsixbilliondemons.com/comic/aesma-and-the-three-masters-part-3-and-4/"
-            },
+            # {
+            #     "start_url":    "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-1/",
+            #     # "start_url":    "https://killsixbilliondemons.com/comic/ksbd-1-8/",
+            #     # "end_url":      "https://killsixbilliondemons.com/comic/ksbd-1-8/"
+            #     "end_url":      "https://killsixbilliondemons.com/comic/ksbd-1-17/"
+            # },
+            # {
+            #     "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-0/",
+            #     # "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-34/",
+            #     "end_url":      "https://killsixbilliondemons.com/comic/prim-leaves-her-fathers-house/"
+            # },
+            # {
+            #     "start_url":    "https://killsixbilliondemons.com/comic/chapter-3/",
+            #     "end_url":      "https://killsixbilliondemons.com/comic/ksbd-3-53-54/"
+            # },
+            # {
+            #     "start_url":    "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-4/",
+            #     "end_url":      "https://killsixbilliondemons.com/comic/aesma-and-the-three-masters-part-3-and-4/"
+            # },
             {
                 "start_url":    "https://killsixbilliondemons.com/comic/ksbd-5-1/",
                 "end_url":      "https://killsixbilliondemons.com/comic/ksbd-5-89-to-5-90/"
@@ -133,15 +135,16 @@ def main(
     force_get_images: bool
 ):
 
+
     ### Args
     if not book:
         exit(f"==> ERROR: Please provide the number of the book to download, from 1-6")
     
     if not chapter:
         print(f"==> INFO: No chapter specified, defaulting to all chapters")
-        chapters = list(range(len(BOOKS_INFO))) ### 0-5
+        chapters = list(range(len(BOOKS_INFO[book-1]["chapters"]))) ### [0,1,2,3,4,5]
     else:
-        chapters = [chapter-1] ### BOOKS_INFO is 0-indexed
+        chapters = [chapter-1] ### [0]
 
     if (dont_get_details and dont_get_images):
         exit(f"==> ERROR: You must download either page details or images, exiting early")
@@ -190,11 +193,15 @@ def main(
         if not os.path.exists(chapter_details_file):
 
             if not dont_get_details:
+
+                print(f"\n==> INFO: Begin downloading page details for book {book}, chapter {c+1}")
+
                 chapter_details = get_chapter_details(driver, **BOOKS_INFO[book-1]["chapters"][c])
 
+                print(f"==> INFO: Finished downloading page details for book {book}, chapter {c+1}")
                 print(f"==> INFO: Writing chapter details to '{chapter_details_file}'")
+
                 with open(chapter_details_file, "w", encoding="utf8") as f:
-                    # json.dump(chapter_details, f, indent=4, ensure_ascii=False)
                     f.write(standard_json_dumps(chapter_details))
             else:
                 print(f"==> INFO: Skipped downloading chapter details due to 'dont_get_details'")
@@ -217,7 +224,11 @@ def main(
                     os.remove(i)
                     print(f"==> INFO: Removed existing image '{os.path.basename(i)}'")
 
+            print(f"\n==> INFO: Started downloading images for book {book}, chapter {c+1}")
+
             get_chapter_images(BOOK_DIR, chapter_details, c)
+
+            print(f"==> INFO: Finished downloading images for book {book}, chapter {c+1}")
 
         else:
             print(f"==> INFO: Skipped downloading images due to 'dont_get_images'")
@@ -234,13 +245,11 @@ def standard_json_dumps(var: any) -> str:
 
 
 def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str) -> list:
-    # print(f"==> DEBUG: Entered get_chapter_details()")
 
     driver.get(start_url)
 
     chapter_details = []
     while True:
-        # print(f"==> DEBUG: Navigated to '{driver.current_url}'")
 
         title_ele = driver.find_element(By.CLASS_NAME, "post-title")
 
@@ -256,9 +265,11 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
             elif e.tag_name == "img":
                 entry_ele_children_extracted.append(e.get_attribute("src"))
 
-        img_eles = driver.find_elements(By.XPATH,
-            "//img[contains(@src,'killsixbilliondemons.com/wp-content/uploads/')]",
-        )
+        # img_eles = driver.find_elements(By.XPATH,
+        #     "//img[contains(@src,'killsixbilliondemons.com/wp-content/uploads/')]",
+        # )
+        comic_ele = driver.find_element(By.ID, "comic")
+        img_eles = comic_ele.find_elements(By.TAG_NAME, "img")
 
         temp_page_details = {
             "title":        title_ele.text,
@@ -267,9 +278,7 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
             "desc_list":    entry_ele_children_extracted,
         }
 
-        # print(f"==> DEBUG: temp_page_details = {json.dumps(temp_page_details, indent=4, ensure_ascii=False)}")
-        # print(f"==> DEBUG: temp_page_details = {standard_json_dumps(temp_page_details)}")
-        print(f"==> INFO: Fetched details for page '{temp_page_details['title']}'")
+        print(f"==> INFO: Downloaded details for page '{temp_page_details['title']}'")
 
         chapter_details.append(temp_page_details)
 
@@ -277,29 +286,25 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
         if (driver.current_url != end_url):
             driver.find_element(By.LINK_TEXT, "Next >").click()
         else:
-            print(f"==> INFO: Finished scraping URLs")
             break
 
     return chapter_details
 
 
 def get_chapter_images(dir: str, chapter_details: list, chapter_no: int) -> None:
-    # print(f"==> DEBUG: Entered get_chapter_images()")
-
-    page_no = 0
-
-    for page in chapter_details:
-        for image_url in page["image_urls"]:
+    for p, page in enumerate(chapter_details):
+        for i, image_url in enumerate(page["image_urls"]):
 
             image_url_parsed = urlparse(image_url)
             original_image_file = os.path.basename(image_url_parsed.path)
-            image_file = f"{dir}/{chapter_no+1}-{str(page_no).zfill(2)}-{original_image_file}"
 
-            print(f"==> INFO: Downloading image to '{os.path.basename(image_file)}'")
+            # image_file = f"{dir}/{chapter_no+1}-{str(p).zfill(2)}-{original_image_file}"
+            # image_file = f"{dir}/c{chapter_no+1}-p{str(p).zfill(2)}-i{i}-{original_image_file}" ### "c1-p00-i0-ksbdcoverchapter1.jpg"
+            image_file = f"{dir}/{chapter_no+1}-{str(p).zfill(2)}-{i}-{original_image_file}" ### "1-00-0-ksbdcoverchapter1.jpg"
 
             urlretrieve(image_url, image_file)
 
-            page_no += 1
+            print(f"==> INFO: Downloaded image to '{os.path.basename(image_file)}'")
 
 
 if (__name__ == "__main__"):

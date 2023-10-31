@@ -51,5 +51,10 @@ Download book 3 (all chapters) chapter details only, no images
 Etc.
 
 
+## TODO:
+- Async downloads
+- Detect if image exists, handle --force_get_images
+
+
 <!-- # What do I do with all these images?
 The images are downloaded with a zero-filled page number prefix, meaning you can simply ZIP them into a functional CBZ file for your favourite comic book reader. Cool!  -->
