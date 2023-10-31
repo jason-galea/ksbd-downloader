@@ -54,6 +54,7 @@ Etc.
 ## TODO:
 - Async downloads
 - Detect if image exists, handle --force_get_images
+- Improve get_details() logic for --force_get_details & existing files
 
 
 <!-- # What do I do with all these images?

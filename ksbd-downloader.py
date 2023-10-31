@@ -186,14 +186,40 @@ def main(
 
         ### Get details
         ### TODO: Improve logic
-        if (force_get_details) and (os.path.exists(chapter_details_file)):
-            print(f"==> INFO: 'force_get_details' enabled, removing '{os.path.basename(chapter_details_file)}'")
-            os.remove(chapter_details_file)
+        # if (force_get_details) and (os.path.exists(chapter_details_file)):
+        #     print(f"==> INFO: 'force_get_details' enabled, removing '{os.path.basename(chapter_details_file)}'")
+        #     os.remove(chapter_details_file)
 
-        if not os.path.exists(chapter_details_file):
+        # if not os.path.exists(chapter_details_file):
 
-            if not dont_get_details:
+        #     if not dont_get_details:
 
+        #         print(f"\n==> INFO: Begin downloading page details for book {book}, chapter {c+1}")
+
+        #         chapter_details = get_chapter_details(driver, **BOOKS_INFO[book-1]["chapters"][c])
+
+        #         print(f"==> INFO: Finished downloading page details for book {book}, chapter {c+1}")
+        #         print(f"==> INFO: Writing chapter details to '{chapter_details_file}'")
+
+        #         with open(chapter_details_file, "w", encoding="utf8") as f:
+        #             f.write(standard_json_dumps(chapter_details))
+        #     else:
+        #         print(f"==> INFO: Skipped downloading chapter details due to 'dont_get_details'")
+
+        # else:
+        #     print(f"==> INFO: Detected existing chapter details file '{chapter_details_file}'")
+        #     with open(chapter_details_file, "r", encoding="utf8") as f:
+        #         chapter_details = json.load(f)
+
+        
+        # if (force_get_details) and (os.path.exists(chapter_details_file)):
+        #     print(f"==> INFO: 'force_get_details' enabled, removing '{os.path.basename(chapter_details_file)}'")
+        #     os.remove(chapter_details_file)
+
+
+        if not dont_get_details:
+
+            if (not os.path.exists(chapter_details_file)) or (force_get_details):
                 print(f"\n==> INFO: Begin downloading page details for book {book}, chapter {c+1}")
 
                 chapter_details = get_chapter_details(driver, **BOOKS_INFO[book-1]["chapters"][c])
@@ -203,13 +229,17 @@ def main(
 
                 with open(chapter_details_file, "w", encoding="utf8") as f:
                     f.write(standard_json_dumps(chapter_details))
+            
+            elif not force_get_details:
+                
+
             else:
-                print(f"==> INFO: Skipped downloading chapter details due to 'dont_get_details'")
+                print(f"==> INFO: Chapter details file '{chapter_details_file}' already exists")
+            
 
         else:
-            print(f"==> INFO: Detected existing chapter details file '{chapter_details_file}'")
-            with open(chapter_details_file, "r", encoding="utf8") as f:
-                chapter_details = json.load(f)
+            print(f"==> INFO: Skipped downloading chapter details due to 'dont_get_details'")
+
 
         # # print(f"==> DEBUG: chapter_details = {json.dumps(chapter_details, indent=4, ensure_ascii=False)}")
         # print(f"==> DEBUG: chapter_details = {standard_json_dumps(chapter_details)}")
@@ -218,15 +248,13 @@ def main(
         ### Get images
         if not dont_get_images:
 
-            if force_get_images:
-                print(f"==> INFO: 'force_get_images' enabled, will remove existing images")
-                for i in glob(f"{BOOK_DIR}/{c+1}-*.jpg"):
-                    os.remove(i)
-                    print(f"==> INFO: Removed existing image '{os.path.basename(i)}'")
+            ### NOTE: File must exist at this point
+            with open(chapter_details_file, "r", encoding="utf8") as f:
+                chapter_details = json.load(f)
 
             print(f"\n==> INFO: Started downloading images for book {book}, chapter {c+1}")
 
-            get_chapter_images(BOOK_DIR, chapter_details, c)
+            get_chapter_images(BOOK_DIR, chapter_details, c, force_get_images)
 
             print(f"==> INFO: Finished downloading images for book {book}, chapter {c+1}")
 
@@ -291,7 +319,7 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
     return chapter_details
 
 
-def get_chapter_images(dir: str, chapter_details: list, chapter_no: int) -> None:
+def get_chapter_images(dir: str, chapter_details: list, chapter_no: int, force_get_images: bool) -> None:
     for p, page in enumerate(chapter_details):
         for i, image_url in enumerate(page["image_urls"]):
 
@@ -302,9 +330,16 @@ def get_chapter_images(dir: str, chapter_details: list, chapter_no: int) -> None
             # image_file = f"{dir}/c{chapter_no+1}-p{str(p).zfill(2)}-i{i}-{original_image_file}" ### "c1-p00-i0-ksbdcoverchapter1.jpg"
             image_file = f"{dir}/{chapter_no+1}-{str(p).zfill(2)}-{i}-{original_image_file}" ### "1-00-0-ksbdcoverchapter1.jpg"
 
-            urlretrieve(image_url, image_file)
+            if not os.path.exists(image_file):
+                urlretrieve(image_url, image_file)
+                print(f"==> INFO: Downloaded image '{os.path.basename(image_file)}'")
 
-            print(f"==> INFO: Downloaded image to '{os.path.basename(image_file)}'")
+            elif force_get_images:
+                urlretrieve(image_url, image_file)
+                print(f"==> WARN: Overwriting existing image '{os.path.basename(image_file)}'")
+
+            else:
+                print(f"==> INFO: Image '{os.path.basename(image_file)}' already exists")
 
 
 if (__name__ == "__main__"):
