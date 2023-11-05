@@ -1,11 +1,15 @@
 #!/usr/bin/python3
 
+"""
+Script to download the webcomic "Kill Six Billion Demons".
+"""
 
 from urllib.request import urlretrieve
 from urllib.parse import urlparse
 from glob import glob
 
 import os
+import sys
 import json
 import click
 
@@ -13,7 +17,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
-GET_IMAGE_WORKER_COUNT = 4
+
 BOOKS_INFO: list = [
     {
         "name":                 "kill-six-billion-demons",
@@ -115,6 +119,7 @@ BOOKS_INFO: list = [
         ]
     }
 ]
+CWD = os.getcwd()
 
 
 @click.command()
@@ -133,24 +138,24 @@ def main(
     force_get_details: bool,
     force_get_images: bool
 ):
+    "BEGIN"
 
 
     ### Args
     if not book:
-        exit(f"==> ERROR: Please provide the number of the book to download, from 1-6")
-    
+        sys.exit("==> ERROR: Please provide the number of the book to download, from 1-6")
+
     if not chapter:
-        print(f"==> INFO: No chapter specified, defaulting to all chapters")
+        print("==> INFO: No chapter specified, defaulting to all chapters")
         chapters = list(range(len(BOOKS_INFO[book-1]["chapters"]))) ### [0,1,2,3,4,5]
     else:
         chapters = [chapter-1] ### [0]
 
     if (dont_get_details and dont_get_images):
-        exit(f"==> ERROR: You must download either page details or images, exiting early")
+        sys.exit("==> ERROR: You must download either page details or images, exiting early")
 
 
     ### Vars
-    CWD = os.getcwd()
     # DOWNLOAD_DIR = f"{CWD}/out"
     BOOK_DIR = f"{CWD}/out/{book}-{BOOKS_INFO[book-1]['name']}"
 
@@ -168,7 +173,7 @@ def main(
     # create_dirs(DOWNLOAD_DIR)
     create_dirs(BOOK_DIR)
 
-    
+
     ### Create webdriver
     print("==> INFO: Initialising webdriver")
     driver_options = Options()
@@ -179,7 +184,7 @@ def main(
 
 
     for c in chapters:
-        
+
         chapter_details_file = f"{BOOK_DIR}/{c+1}-details.json"
 
 
@@ -196,6 +201,7 @@ def main(
                 print(f"\n==> INFO: Begin downloading page details for book {book}, chapter {c+1}")
 
                 chapter_details = get_chapter_details(driver, **BOOKS_INFO[book-1]["chapters"][c])
+                # chapter_details = get_chapter_details(driver, BOOKS_INFO[book-1]["chapters"][c])
 
                 print(f"==> INFO: Finished downloading page details for book {book}, chapter {c+1}")
                 print(f"==> INFO: Writing chapter details to '{chapter_details_file}'")
@@ -203,7 +209,7 @@ def main(
                 with open(chapter_details_file, "w", encoding="utf8") as f:
                     f.write(standard_json_dumps(chapter_details))
             else:
-                print(f"==> INFO: Skipped downloading chapter details due to 'dont_get_details'")
+                print("==> INFO: Skipped downloading chapter details due to 'dont_get_details'")
 
         else:
             print(f"==> INFO: Detected existing chapter details file '{chapter_details_file}'")
@@ -235,22 +241,36 @@ def main(
             print(f"==> INFO: Finished downloading images for book {book}, chapter {c+1}")
 
         else:
-            print(f"==> INFO: Skipped downloading images due to 'dont_get_images'")
+            print("==> INFO: Skipped downloading images due to 'dont_get_images'")
 
 
-def create_dirs(dir_path: str) -> None:
-    if not (os.path.exists(dir_path)):
-        print(f"==> INFO: Creating directory '{dir_path}'")
-        os.makedirs(dir_path)
+def create_dirs(d: str) -> None:
+    """
+    Creates given dir + parent dirs, if they don't exist
+    """
+
+    if not os.path.exists(d):
+        print(f"==> INFO: Creating directory '{d}'")
+        os.makedirs(d)
 
 
 def standard_json_dumps(var: any) -> str:
+    """
+    Returns json object, preserving ASCII characters
+    """
+
     return json.dumps(var, indent=4, ensure_ascii=False)
 
 
 def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str) -> list:
+# def get_chapter_details(driver: webdriver.Firefox, chapter_urls: dict) -> list:
+    """
+    Iterates through given start/end URLs to get details of chapter
+    Returns list of details, containing dictionaries for each page
+    """
 
     driver.get(start_url)
+    # driver.get(chapter_urls["start_url"])
 
     chapter_details = []
     while True:
@@ -287,7 +307,8 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
         chapter_details.append(temp_page_details)
 
 
-        if (driver.current_url != end_url):
+        if driver.current_url != end_url:
+        # if driver.current_url != chapter_urls["end_url"]:
             driver.find_element(By.LINK_TEXT, "Next >").click()
         else:
             break
@@ -295,16 +316,20 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
     return chapter_details
 
 
-def get_chapter_images(dir: str, chapter_details: list, chapter_no: int) -> None:
+def get_chapter_images(d: str, chapter_details: list, chapter_no: int) -> None:
+    """
+    asd
+    """
+
     for p, page in enumerate(chapter_details):
         for i, image_url in enumerate(page["image_urls"]):
 
             image_url_parsed = urlparse(image_url)
             original_image_file = os.path.basename(image_url_parsed.path)
 
-            # image_file = f"{dir}/{chapter_no+1}-{str(p).zfill(2)}-{original_image_file}"
-            # image_file = f"{dir}/c{chapter_no+1}-p{str(p).zfill(2)}-i{i}-{original_image_file}" ### "c1-p00-i0-ksbdcoverchapter1.jpg"
-            image_file = f"{dir}/{chapter_no+1}-{str(p).zfill(2)}-{i}-{original_image_file}" ### "1-00-0-ksbdcoverchapter1.jpg"
+            # image_file = f"{d}/{chapter_no+1}-{str(p).zfill(2)}-{original_image_file}"
+            # image_file = f"{d}/c{chapter_no+1}-p{str(p).zfill(2)}-i{i}-{original_image_file}" ### "c1-p00-i0-ksbdcoverchapter1.jpg"
+            image_file = f"{d}/{chapter_no+1}-{str(p).zfill(2)}-{i}-{original_image_file}" ### "1-00-0-ksbdcoverchapter1.jpg"
 
             if not os.path.exists(image_file):
                 urlretrieve(image_url, image_file)
@@ -314,5 +339,5 @@ def get_chapter_images(dir: str, chapter_details: list, chapter_no: int) -> None
                 print(f"==> INFO: Image '{os.path.basename(image_file)}' already exists")
 
 
-if (__name__ == "__main__"):
-    main()
+if __name__ == "__main__":
+    main() # pylint: disable=no-value-for-parameter
