@@ -16,9 +16,9 @@ Then, images are downloaded asynchronously from the above image URLs
 
 
 ## Using the script
-    ./ksbd-downloader.py --help
+    ./ksbd_downloader.py --help
 
-    Usage: ksbd-downloader.py [OPTIONS]
+    Usage: ksbd_downloader.py [OPTIONS]
 
     Options:
         -b, --book INTEGER     Book # to download, from 1-6.
@@ -34,19 +34,19 @@ Then, images are downloaded asynchronously from the above image URLs
 ## Examples:
 Download book 1 (all chapters)
 
-    ./ksbd-downloader.py -b 1
+    ./ksbd_downloader.py -b 1
     
 Download book 1, chapter 5
 
-    ./ksbd-downloader.py -b 1 -c 5
+    ./ksbd_downloader.py -b 1 -c 5
     
 Download book 1, chapter 5, and ignore previously downloaded chapter details
 
-    ./ksbd-downloader.py -b 1 -c 5 --force_get_details
+    ./ksbd_downloader.py -b 1 -c 5 --force_get_details
     
 Download book 3 (all chapters) chapter details only, no images
 
-    ./ksbd-downloader.py -b 3 --dont_get_images
+    ./ksbd_downloader.py -b 3 --dont_get_images
 
 Etc.
 

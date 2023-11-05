@@ -123,7 +123,6 @@ CWD = os.getcwd()
 
 
 @click.command()
-# @click.argument("book", type=click.IntRange(min=1, max=6, min_open=False, max_open=False, clamp=False) )
 @click.option("-b", "--book", type=int, help="Book # to download, from 1-6.")
 @click.option("-c", "--chapter", type=int, help="Chapter # to download. Defaults to downloading all chapters")
 @click.option("--dont_get_details", is_flag=True, help="Only download page details, ignoring images")
@@ -138,7 +137,9 @@ def main(
     force_get_details: bool,
     force_get_images: bool
 ):
-    "BEGIN"
+    """
+    Main function
+    """
 
 
     ### Args
