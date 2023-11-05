@@ -66,7 +66,7 @@ def main():
             book=book,
             book_title=BOOKS_INFO[book-1]['title'],
             book_dir=book_dir_relative_to_result_file,
-            chapter_no=c+1,
+            # chapter_no=c+1,
             # **chapter_details[0]
             chapter_details=chapter_details,
         )
