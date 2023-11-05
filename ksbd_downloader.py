@@ -175,7 +175,8 @@ def main(
 
     for c in chapters:
 
-        chapter_details_file = f"{book_dir}/{c+1}-details.json"
+        ### NOTE: Keep details files separate from image files
+        chapter_details_file = f"{book_dir}/chapter-{c+1}-details.json"
 
 
         ### Get details
@@ -253,6 +254,7 @@ def get_chapter_details(
     ) -> list:
     """
     Iterates through given start/end URLs to get details of chapter
+
     Returns list of details, containing dictionaries for each page
     """
 
@@ -281,6 +283,7 @@ def get_chapter_details(
         img_eles = comic_ele.find_elements(By.TAG_NAME, "img")
 
         temp_page_details = {
+            "page_url":     driver.current_url,
             "title":        title_ele.text,
             "image_urls":   [i.get_attribute("src") for i in img_eles],
             "alt_text":     img_eles[0].get_attribute('alt'),
