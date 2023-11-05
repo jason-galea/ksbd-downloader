@@ -21,14 +21,14 @@ def main():
     Main
     """
 
-    book = 1
+    book = 2
     # book_name = BOOKS_INFO[book-1]['name']
     # book_dir = f"{CWD}/out/{book}-{book_name}"
     book_dir = f"{CWD}/out/{book}-{BOOKS_INFO[book-1]['name']}"
     book_dir_relative_to_result_file = f"./{book}-{BOOKS_INFO[book-1]['name']}"
 
     # chapters = list(range(len(BOOKS_INFO[book-1]["chapters"]))) ### [0,1,2,3,4,5]
-    chapters = [0]
+    chapters = [3]
 
     # environment = Environment(loader=BaseLoader)
     env = Environment(
@@ -37,7 +37,7 @@ def main():
     )
 
     # book_template_file = env.get_template(f"{CWD}/templates/book.html.j2")
-    book_template_file = env.get_template("book.html.j2")
+    book_template_file = env.get_template("book.j2.html")
 
     book_result_file = f"{book_dir}.html"
 
