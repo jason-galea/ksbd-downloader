@@ -11,7 +11,7 @@
             // "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "program": "${workspaceFolder}/ksbd-downloader.py",
+            "program": "${workspaceFolder}/ksbd_downloader.py",
             "args": ["-b", "1", "-c", "1", "--dont_get_images", "--force_get_details"]
         }
     ]

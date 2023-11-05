@@ -25,6 +25,7 @@ def main():
     # book_name = BOOKS_INFO[book-1]['name']
     # book_dir = f"{CWD}/out/{book}-{book_name}"
     book_dir = f"{CWD}/out/{book}-{BOOKS_INFO[book-1]['name']}"
+    book_dir_relative_to_result_file = f"./{book}-{BOOKS_INFO[book-1]['name']}"
 
     # chapters = list(range(len(BOOKS_INFO[book-1]["chapters"]))) ### [0,1,2,3,4,5]
     chapters = [0]
@@ -37,7 +38,7 @@ def main():
 
     # book_template_file = env.get_template(f"{CWD}/templates/book.html.j2")
     book_template_file = env.get_template("book.html.j2")
-    
+
     book_result_file = f"{book_dir}.html"
 
 
@@ -49,38 +50,25 @@ def main():
         with open(chapter_details_file, "r", encoding="utf8") as f:
             chapter_details = json.load(f)
 
-        
-        # print(f"==> DEBUG: chapter_details[0] = {chapter_details[0]}")
-        # print(f"==> DEBUG: chapter_details[0] = {json.dumps(chapter_details[0], indent=2, ensure_ascii=False)}")
-
-        # chapter_details[0] = {
-        # "page_url": "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-1/",
-        # "title": "KILL SIX BILLION DEMONS – Chapter 1",
-        # "image_urls": [
-        #     "https://killsixbilliondemons.com/wp-content/uploads/2013/04/ksbdcoverchapter1.jpg"
-        # ],
-        # "alt_text": "KILL SIX BILLION DEMONS – Chapter 1",
-        # "desc_list": [
-        #     "“Let there be no Genesis, for beginnings are false and I am a consummate liar.”",
-        #     "-Psalms"
-        # ]
-        # }
-
-        # context = {
-        #     "students": students,
-        #     "test_name": test_name,
-        #     "max_score": max_score,
-        # }
+        # {
+        #     "title": "KILL SIX BILLION DEMONS – Chapter 1",
+        #     "image_dict": {
+        #         "1-00-0-ksbdcoverchapter1.jpg": "https://killsixbilliondemons.com/wp-content/uploads/2013/04/ksbdcoverchapter1.jpg"
+        #     },
+        #     "page_url": "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-1/",
+        #     "alt_text": "KILL SIX BILLION DEMONS – Chapter 1",
+        #     "desc_dict": {
+        #         "p": "-Psalms"
+        #     }
+        # },
 
         book_result_rendered = book_template_file.render(
+            book=book,
+            book_title=BOOKS_INFO[book-1]['title'],
+            book_dir=book_dir_relative_to_result_file,
             chapter_no=c+1,
-            **chapter_details[0]
-            # {
-            #     "image_urls":   chapter_details[0]["image_urls"],
-            #     "title":        chapter_details[0]["title"],
-            #     "chapter_no":   c+1,
-            #     "alt_text":     chapter_details[0]["alt_text"]
-            # }
+            # **chapter_details[0]
+            chapter_details=chapter_details,
         )
 
         with open(book_result_file, mode="w", encoding="utf-8") as results:

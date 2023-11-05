@@ -27,10 +27,10 @@ with open(BOOKS_INFO_FILE, "r", encoding="utf8") as f:
 @click.command()
 @click.option("-b", "--book", type=int, help="Book # to download, from 1-6.")
 @click.option("-c", "--chapter", type=int, help="Chapter # to download. Defaults to downloading all chapters")
-@click.option("--dont_get_details", is_flag=True, help="Only download page details, ignoring images")
-@click.option("--dont_get_images", is_flag=True, help="Only download images, assuming image URLs are known")
-@click.option("--force_get_details", is_flag=True, help="Ignore previously downloaded details")
-@click.option("--force_get_images", is_flag=True, help="Ignore previously downloaded images")
+@click.option("-dgd", "--dont_get_details", is_flag=True, help="Only download page details, ignoring images")
+@click.option("-dgi", "--dont_get_images", is_flag=True, help="Only download images, assuming image URLs are known")
+@click.option("-fgd", "--force_get_details", is_flag=True, help="Ignore previously downloaded details")
+@click.option("-fgi", "--force_get_images", is_flag=True, help="Ignore previously downloaded images")
 def main(
     book: int,
     chapter: int,
@@ -163,35 +163,67 @@ def get_chapter_details(
 
     print(f"\n==> INFO: Begin downloading page details for book {book}, chapter {chapter+1}")
 
+
+    ### DOWNLOAD
     driver.get(start_url)
 
+    page_no = 0
     chapter_details = []
     while True:
 
         title_ele = driver.find_element(By.CLASS_NAME, "post-title")
 
+
+        ### Description
         entry_ele = driver.find_element(By.CLASS_NAME, "entry")
         entry_ele_children = entry_ele.find_elements(By.CSS_SELECTOR, "*")
 
-        entry_ele_children_extracted = []
+        # entry_ele_children_extracted = []
+        # for e in entry_ele_children:
+        #     if e.tag_name == "p":
+        #         entry_ele_children_extracted.append(e.text)
+        #     elif (e.tag_name == "a") and ("title" in e.__dict__.keys()):
+        #         entry_ele_children_extracted.append(e.title)
+        #     elif e.tag_name == "img":
+        #         entry_ele_children_extracted.append(e.get_attribute("src"))
+
+        desc_dict = {}
         for e in entry_ele_children:
             if e.tag_name == "p":
-                entry_ele_children_extracted.append(e.text)
+                desc_dict.update({"p": e.text})
             elif (e.tag_name == "a") and ("title" in e.__dict__.keys()):
-                entry_ele_children_extracted.append(e.title)
+                desc_dict.update({"a": e.title})
             elif e.tag_name == "img":
-                entry_ele_children_extracted.append(e.get_attribute("src"))
+                desc_dict.update({"img": e.get_attribute("src")})
 
+
+        ### Image filenames & URLs
         comic_ele = driver.find_element(By.ID, "comic")
         image_eles = comic_ele.find_elements(By.TAG_NAME, "img")
         image_urls = [i.get_attribute("src") for i in image_eles]
+        # image_urls = [i.get_attribute("src") for i in comic_ele.find_elements(By.TAG_NAME, "img")]
+
+        image_dict = {}
+        for i, image_url in enumerate(image_urls):
+
+            image_url_parsed = urlparse(image_url)
+            original_image_file = os.path.basename(image_url_parsed.path)
+
+            ### "c1-p00-i0-ksbdcoverchapter1.jpg"
+            # image_file = f"{book_dir}/c{chapter+1}-p{str(page_no).zfill(2)}-i{i}-{original_image_file}"
+            ### "1-00-0-ksbdcoverchapter1.jpg"
+            image_file = f"{chapter+1}-{str(page_no).zfill(2)}-{i}-{original_image_file}"
+
+            image_dict.update({image_file: image_url})
+
 
         temp_page_details = {
-            "page_url":     driver.current_url,
-            "title":        title_ele.text,
-            # "image_urls":   [i.get_attribute("src") for i in image_eles],
-            "alt_text":     image_eles[0].get_attribute('alt'),
-            "desc_list":    entry_ele_children_extracted,
+            "title":            title_ele.text,
+            "image_dict":       image_dict,
+            "page_url":         driver.current_url,
+            "alt_text":         image_eles[0].get_attribute('alt'),
+            # "desc_list":        entry_ele_children_extracted,
+            "desc_dict":        desc_dict,
         }
 
         print(f"==> INFO: Downloaded details for page '{temp_page_details['title']}'")
@@ -200,8 +232,10 @@ def get_chapter_details(
 
         if driver.current_url != end_url:
             driver.find_element(By.LINK_TEXT, "Next >").click()
+            page_no += 1
         else:
             break
+    
 
     print(f"==> INFO: Finished downloading page details for book {book}, chapter {chapter+1}")
 
@@ -218,19 +252,31 @@ def get_chapter_images(
 
     print(f"\n==> INFO: Started downloading images for book {book}, chapter {chapter+1}")
 
-    for p, page in enumerate(chapter_details):
-        for i, image_url in enumerate(page["image_urls"]):
+    # for p, page in enumerate(chapter_details):
+    #     for i, image_url in enumerate(page["image_urls"]):
 
-            image_url_parsed = urlparse(image_url)
-            original_image_file = os.path.basename(image_url_parsed.path)
+    #         image_url_parsed = urlparse(image_url)
+    #         original_image_file = os.path.basename(image_url_parsed.path)
 
-            ### "c1-p00-i0-ksbdcoverchapter1.jpg"
-            # image_file = f"{book_dir}/c{chapter+1}-p{str(p).zfill(2)}-i{i}-{original_image_file}"
-            ### "1-00-0-ksbdcoverchapter1.jpg"
-            image_file = f"{book_dir}/{chapter+1}-{str(p).zfill(2)}-{i}-{original_image_file}"
+    #         ### "c1-p00-i0-ksbdcoverchapter1.jpg"
+    #         # image_file = f"{book_dir}/c{chapter+1}-p{str(p).zfill(2)}-i{i}-{original_image_file}"
+    #         ### "1-00-0-ksbdcoverchapter1.jpg"
+    #         image_file = f"{book_dir}/{chapter+1}-{str(p).zfill(2)}-{i}-{original_image_file}"
 
-            if not os.path.exists(image_file):
-                urlretrieve(image_url, image_file)
+    #         if not os.path.exists(image_file):
+    #             urlretrieve(image_url, image_file)
+    #             print(f"==> INFO: Downloaded image '{os.path.basename(image_file)}'")
+
+    #         else:
+    #             print(f"==> INFO: Image '{os.path.basename(image_file)}' already exists")
+
+    for page in chapter_details:
+        for image_file, image_url in page["image_dict"].items():
+
+            image_file_full_path = f"{book_dir}/{image_file}"
+
+            if not os.path.exists(image_file_full_path):
+                urlretrieve(image_url, image_file_full_path)
                 print(f"==> INFO: Downloaded image '{os.path.basename(image_file)}'")
 
             else:
