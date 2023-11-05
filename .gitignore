@@ -1,4 +1,3 @@
-downloads/
-logs/
+*__pycache__*
 out/
 geckodriver.log
