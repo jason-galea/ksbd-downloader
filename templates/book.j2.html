@@ -4,43 +4,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-  <!-- <style>
-  h1 { text-align: center }
-  h2 { text-align: center }
-  p { text-align: center }
-  img.displayed {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  </style> -->
   <title>Book {{ book }} - {{ book_title }}</title>
 </head>
 
 <body>
 {% for chapter in chapter_details %}
   <div class="columns is-mobile is-centered">
-    <div class="column is-four-fifths">
-      <p class="is-size-2">{{ chapter.title }}</p>
-    </div>
-  </div>
-
-  <div class="columns is-mobile is-centered">
   {% for image_url, _ in chapter.image_dict.items() %}
     <div class="column is-four-fifths">
-      <img class="is-fullwidth" src="{{ book_dir }}/{{ image_url }}">
+      <!-- <img class="is-fullwidth" src="{{ book_dir }}/{{ image_url }}"> -->
+      <img style="width: 100%;" src="{{ book_dir }}/{{ image_url }}">
     </div>
   {% endfor %}
   </div>
+  <!-- {% for image_url, _ in chapter.image_dict.items() %}
+    <img class="is-fullwidth" src="{{ book_dir }}/{{ image_url }}">
+  {% endfor %} -->
   
-  <div class="columns is-mobile is-centered">
-    <div class="column is-four-fifths">
-      <p class="is-italic">{{ chapter.alt_text }}</p>
-    </div>
+  <h3 class="title is-3 has-text-centered">{{ chapter.title }}</h3>
+  
+  <div class="block is-italic has-text-centered">
+    {{ chapter.alt_text }}
   </div>
 
   <div class="columns is-mobile is-centered">
-    <div class="column is-four-fifths"> 
+    <div class="column is-half">
     {% for desc_item in chapter.desc_list %}
       {% if desc_item.type == "p" %}
       <p>{{ desc_item.text }}</p>
@@ -52,6 +40,18 @@
     {% endfor %}
     </div>
   </div>
+
+  <!-- <div class="block is-italic has-text-centered">
+  {% for desc_item in chapter.desc_list %}
+    {% if desc_item.type == "p" %}
+    <p>{{ desc_item.text }}</p>
+    {% elif desc_item.type == "img" %}
+    <img src="{{ desc_item.src }}">
+    {% elif desc_item.type == "a" %}
+    <a href="{{ desc_item.src }}">{{ desc_item.text }}</a>
+    {% endif %}
+  {% endfor %}
+  </div> -->
 {% endfor %}
 </body>
 </html>

@@ -183,12 +183,13 @@ def get_chapter_details(
             
             temp_src = temp_text = None
 
-            if e.tag_name == "p":
+            if (e.tag_name == "p") and not (e.find_elements(By.TAG_NAME, "a")):
+                ### NOTE: Ignore paragraphs with children
                 temp_text = e.text
             elif e.tag_name == "img":
                 temp_src = e.get_attribute("src")
-            ### TODO: Find what page this applies to?
             elif (e.tag_name == "a") and ("title" in e.__dict__.keys()):
+                ### TODO: Find what page this applies to?
                 temp_text = e.title
             elif e.tag_name == "a":
                 temp_src = e.get_attribute("href")

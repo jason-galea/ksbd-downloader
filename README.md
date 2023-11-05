@@ -1,5 +1,5 @@
 # ksbd-downloader
-Script to download the webcomic "Kill Six Billion Demons".
+Scripts to download & display the webcomic "Kill Six Billion Demons".
 
 The script first downloads the details of each page, including:
 - Title
@@ -56,9 +56,9 @@ Etc.
 - Detect if image exists, handle --force_get_images
 - Improve get_details() logic for --force_get_details & existing files
 - Add instructions for `render_html.py`
-- Add book & chapter CLI options for `render_html.py`
-- Handle "FULL SIZE" anchors in descriptions
+- Add book & chapter CLI options for `render_chapter_html.py`
 - Use single `<div class="columns is-mobile is-centered">` element
+- 
 
 
 <!-- # What do I do with all these images?
