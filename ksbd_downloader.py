@@ -17,7 +17,6 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
-
 BOOKS_INFO: list = [
     {
         "name":                 "kill-six-billion-demons",
@@ -141,8 +140,6 @@ def main(
     Main function
     """
 
-
-    ### Args
     if not book:
         sys.exit("==> ERROR: Please provide the number of the book to download, from 1-6")
 
@@ -155,10 +152,7 @@ def main(
     if (dont_get_details and dont_get_images):
         sys.exit("==> ERROR: You must download either page details or images, exiting early")
 
-
-    ### Vars
-    # DOWNLOAD_DIR = f"{CWD}/out"
-    BOOK_DIR = f"{CWD}/out/{book}-{BOOKS_INFO[book-1]['name']}"
+    book_dir = f"{CWD}/out/{book}-{BOOKS_INFO[book-1]['name']}"
 
     # print(f"==> DEBUG: book = {book}")
     # print(f"==> DEBUG: chapter = {chapter}")
@@ -166,16 +160,12 @@ def main(
     # print(f"==> DEBUG: get_images = {dont_get_images}")
     # print(f"==> DEBUG: CWD = {CWD}")
     # print(f"==> DEBUG: DOWNLOAD_DIR = {DOWNLOAD_DIR}")
-    # print(f"==> DEBUG: BOOK_DIR = {BOOK_DIR}")
+    # print(f"==> DEBUG: book_dir = {book_dir}")
     # print()
 
-
-    ### Create dirs
     # create_dirs(DOWNLOAD_DIR)
-    create_dirs(BOOK_DIR)
+    create_dirs(book_dir)
 
-
-    ### Create webdriver
     print("==> INFO: Initialising webdriver")
     driver_options = Options()
     driver_options.add_argument("--headless")
@@ -183,10 +173,9 @@ def main(
         options=driver_options,
     )
 
-
     for c in chapters:
 
-        chapter_details_file = f"{BOOK_DIR}/{c+1}-details.json"
+        chapter_details_file = f"{book_dir}/{c+1}-details.json"
 
 
         ### Get details
@@ -199,16 +188,17 @@ def main(
 
             if not dont_get_details:
 
-                print(f"\n==> INFO: Begin downloading page details for book {book}, chapter {c+1}")
+                chapter_details = get_chapter_details(
+                    driver=driver,
+                    book=book,
+                    chapter=c,
+                    **BOOKS_INFO[book-1]["chapters"][c]
+                )
 
-                chapter_details = get_chapter_details(driver, **BOOKS_INFO[book-1]["chapters"][c])
-                # chapter_details = get_chapter_details(driver, BOOKS_INFO[book-1]["chapters"][c])
-
-                print(f"==> INFO: Finished downloading page details for book {book}, chapter {c+1}")
                 print(f"==> INFO: Writing chapter details to '{chapter_details_file}'")
-
                 with open(chapter_details_file, "w", encoding="utf8") as f:
                     f.write(standard_json_dumps(chapter_details))
+
             else:
                 print("==> INFO: Skipped downloading chapter details due to 'dont_get_details'")
 
@@ -233,13 +223,7 @@ def main(
             with open(chapter_details_file, "r", encoding="utf8") as f:
                 chapter_details = json.load(f)
 
-            print(f"\n==> INFO: Started downloading images for book {book}, chapter {c+1}")
-
-
-            get_chapter_images(BOOK_DIR, chapter_details, c)
-
-
-            print(f"==> INFO: Finished downloading images for book {book}, chapter {c+1}")
+            get_chapter_images(book, book_dir, chapter_details, c)
 
         else:
             print("==> INFO: Skipped downloading images due to 'dont_get_images'")
@@ -263,15 +247,18 @@ def standard_json_dumps(var: any) -> str:
     return json.dumps(var, indent=4, ensure_ascii=False)
 
 
-def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str) -> list:
-# def get_chapter_details(driver: webdriver.Firefox, chapter_urls: dict) -> list:
+def get_chapter_details(
+        driver: webdriver.Firefox, start_url: str, end_url: str,
+        book: int, chapter: int
+    ) -> list:
     """
     Iterates through given start/end URLs to get details of chapter
     Returns list of details, containing dictionaries for each page
     """
 
+    print(f"\n==> INFO: Begin downloading page details for book {book}, chapter {chapter+1}")
+
     driver.get(start_url)
-    # driver.get(chapter_urls["start_url"])
 
     chapter_details = []
     while True:
@@ -290,9 +277,6 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
             elif e.tag_name == "img":
                 entry_ele_children_extracted.append(e.get_attribute("src"))
 
-        # img_eles = driver.find_elements(By.XPATH,
-        #     "//img[contains(@src,'killsixbilliondemons.com/wp-content/uploads/')]",
-        # )
         comic_ele = driver.find_element(By.ID, "comic")
         img_eles = comic_ele.find_elements(By.TAG_NAME, "img")
 
@@ -307,20 +291,25 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
 
         chapter_details.append(temp_page_details)
 
-
         if driver.current_url != end_url:
-        # if driver.current_url != chapter_urls["end_url"]:
             driver.find_element(By.LINK_TEXT, "Next >").click()
         else:
             break
 
+    print(f"==> INFO: Finished downloading page details for book {book}, chapter {chapter+1}")
+
     return chapter_details
 
 
-def get_chapter_images(d: str, chapter_details: list, chapter_no: int) -> None:
+def get_chapter_images(
+        book: int, book_dir: str,
+        chapter_details: list, chapter: int,
+    ) -> None:
     """
-    asd
+    Downloads images :o
     """
+
+    print(f"\n==> INFO: Started downloading images for book {book}, chapter {chapter+1}")
 
     for p, page in enumerate(chapter_details):
         for i, image_url in enumerate(page["image_urls"]):
@@ -328,9 +317,10 @@ def get_chapter_images(d: str, chapter_details: list, chapter_no: int) -> None:
             image_url_parsed = urlparse(image_url)
             original_image_file = os.path.basename(image_url_parsed.path)
 
-            # image_file = f"{d}/{chapter_no+1}-{str(p).zfill(2)}-{original_image_file}"
-            # image_file = f"{d}/c{chapter_no+1}-p{str(p).zfill(2)}-i{i}-{original_image_file}" ### "c1-p00-i0-ksbdcoverchapter1.jpg"
-            image_file = f"{d}/{chapter_no+1}-{str(p).zfill(2)}-{i}-{original_image_file}" ### "1-00-0-ksbdcoverchapter1.jpg"
+            ### "c1-p00-i0-ksbdcoverchapter1.jpg"
+            # image_file = f"{book_dir}/c{chapter+1}-p{str(p).zfill(2)}-i{i}-{original_image_file}"
+            ### "1-00-0-ksbdcoverchapter1.jpg"
+            image_file = f"{book_dir}/{chapter+1}-{str(p).zfill(2)}-{i}-{original_image_file}"
 
             if not os.path.exists(image_file):
                 urlretrieve(image_url, image_file)
@@ -338,6 +328,8 @@ def get_chapter_images(d: str, chapter_details: list, chapter_no: int) -> None:
 
             else:
                 print(f"==> INFO: Image '{os.path.basename(image_file)}' already exists")
+
+    print(f"==> INFO: Finished downloading images for book {book}, chapter {chapter+1}")
 
 
 if __name__ == "__main__":
