@@ -58,7 +58,7 @@ Etc.
 - Add instructions for `render_html.py`
 - Add book & chapter CLI options for `render_chapter_html.py`
 - Use single `<div class="columns is-mobile is-centered">` element
-- 
+- Convert static HTML to Flask, with home pages for books & chapters
 
 
 <!-- # What do I do with all these images?
