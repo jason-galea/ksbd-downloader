@@ -57,7 +57,8 @@ Etc.
 - Improve get_details() logic for --force_get_details & existing files
 - Add instructions for `render_html.py`
 - Add book & chapter CLI options for `render_html.py`
-- Add CSS (bulma?) and centre all HTMl elements
+- Handle "FULL SIZE" anchors in descriptions
+- Use single `<div class="columns is-mobile is-centered">` element
 
 
 <!-- # What do I do with all these images?

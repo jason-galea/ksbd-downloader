@@ -178,27 +178,28 @@ def get_chapter_details(
         entry_ele = driver.find_element(By.CLASS_NAME, "entry")
         entry_ele_children = entry_ele.find_elements(By.CSS_SELECTOR, "*")
 
-        # entry_ele_children_extracted = []
-        # for e in entry_ele_children:
-        #     if e.tag_name == "p":
-        #         entry_ele_children_extracted.append(e.text)
-        #     elif (e.tag_name == "a") and ("title" in e.__dict__.keys()):
-        #         entry_ele_children_extracted.append(e.title)
-        #     elif e.tag_name == "img":
-        #         entry_ele_children_extracted.append(e.get_attribute("src"))
-
         desc_list = []
         for e in entry_ele_children:
+            
+            temp_src = temp_text = None
+
             if e.tag_name == "p":
-                desc_list.append(("p", e.text))
-            elif (e.tag_name == "a") and ("title" in e.__dict__.keys()):
-                desc_list.append(("a", e.title))
-            ### TODO: HANDLE <a> HREF, such as:
-            ### https://killsixbilliondemons.com/comic/wielder-of-names-4-60-palace-of-radiance/
-            # elif (e.tag_name == "a") and ("title" in e.__dict__.keys()):
-            #     desc_list.append(("a", e.title))
+                temp_text = e.text
             elif e.tag_name == "img":
-                desc_list.append(("img", e.get_attribute("src")))
+                temp_src = e.get_attribute("src")
+            ### TODO: Find what page this applies to?
+            elif (e.tag_name == "a") and ("title" in e.__dict__.keys()):
+                temp_text = e.title
+            elif e.tag_name == "a":
+                temp_src = e.get_attribute("href")
+                temp_text = e.text
+
+            if (temp_src) or (temp_text):
+                desc_list.append({
+                    "type":     e.tag_name,
+                    "src":      temp_src,
+                    "text":     temp_text
+                })
 
 
         ### Image filenames & URLs

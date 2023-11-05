@@ -28,7 +28,7 @@
   <div class="columns is-mobile is-centered">
   {% for image_url, _ in chapter.image_dict.items() %}
     <div class="column is-four-fifths">
-      <img src="{{ book_dir }}/{{ image_url }}">
+      <img class="is-fullwidth" src="{{ book_dir }}/{{ image_url }}">
     </div>
   {% endfor %}
   </div>
@@ -41,11 +41,13 @@
 
   <div class="columns is-mobile is-centered">
     <div class="column is-four-fifths"> 
-    {% for desc_tuple in chapter.desc_list %}
-      {% if desc_tuple.0 == "p" %}
-      <p>{{ desc_tuple.1 }}</p>
-      {% elif desc_tuple.0 == "img" %}
-      <img src="{{ desc_tuple.1 }}">
+    {% for desc_item in chapter.desc_list %}
+      {% if desc_item.type == "p" %}
+      <p>{{ desc_item.text }}</p>
+      {% elif desc_item.type == "img" %}
+      <img src="{{ desc_item.src }}">
+      {% elif desc_item.type == "a" %}
+      <a href="{{ desc_item.src }}">{{ desc_item.text }}</a>
       {% endif %}
     {% endfor %}
     </div>
