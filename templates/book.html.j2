@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Results</title>
+</head>
+
+<body>
+
+  <h2>{{ title }}</h2>
+
+  Chapter {{ chapter_no }}
+
+  {{ alt_text }}
+
+  {% for desc_item in desc_list %}
+
+    <p>{{ desc_item }}</p>
+
+  {% endfor %}
+
+</body>
+
+</html>

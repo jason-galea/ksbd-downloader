@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Results</title>
+</head>
+
+<body>
+
+  # {% for image_url in image_urls %}
+  #   <img src="{{  }}">
+  # {% endfor %}
+
+  <h2>{{ title }}</h2>
+
+  Chapter {{ chapter_no }}
+
+  {{ alt_text }}
+
+  {% for desc_item in desc_list %}
+    
+    # {% if score > 80 %}
+    # I'm happy to inform you that you did very well on today's {{ test_name }}.
+    # {% else %}
+    # I'm sorry to inform you that you did not do so well on today's {{ test_name }}.
+    # {% endif %}
+    # You reached {{ score }} out of {{ max_score }} points.
+
+    <p>{{ desc_item }}</p>
+
+  {% endfor %}
+
+</body>
+
+</html>

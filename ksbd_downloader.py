@@ -17,108 +17,11 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
-BOOKS_INFO: list = [
-    {
-        "name":                 "kill-six-billion-demons",
-        "title":                "Kill Six Billion Demons",
-        "chapters": [
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-1/",
-                # "start_url":    "https://killsixbilliondemons.com/comic/ksbd-1-8/",
-                # "end_url":      "https://killsixbilliondemons.com/comic/ksbd-1-8/"
-                "end_url":      "https://killsixbilliondemons.com/comic/ksbd-1-17/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-0/",
-                # "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-34/",
-                "end_url":      "https://killsixbilliondemons.com/comic/prim-leaves-her-fathers-house/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/chapter-3/",
-                "end_url":      "https://killsixbilliondemons.com/comic/ksbd-3-53-54/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-4/",
-                "end_url":      "https://killsixbilliondemons.com/comic/aesma-and-the-three-masters-part-3-and-4/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/ksbd-5-1/",
-                "end_url":      "https://killsixbilliondemons.com/comic/ksbd-5-89-to-5-90/"
-            },
-        ]
-    },
-    {
-        "name":                 "wielder-of-names",
-        "title":                "Wielder of Names",
-        "chapters": [
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-cover/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-1-18/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-2-19/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-2-39-pursuers/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-3-39/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-3-59/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-4-60-palace-of-radiance/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-4-80/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-5-81/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-5-102/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-6-103-to-6-104-war-of-the-teacups/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-6-123/"
-            },
-        ]
-    },
-    {
-        "name":                 "seek-of-thrones",
-        "title":                "Seeker of Thrones",
-        "chapters": [
-            {
-                "start_url":    "",
-                "end_url":      ""
-            },
-        ]
-    },
-    {
-        "name":                 "king-of-swords",
-        "title":                "King of Swords",
-        "chapters": [
-            {
-                "start_url":    "",
-                "end_url":      ""
-            },
-        ]
-    },
-    {
-        "name":                 "breaker-of-infinities",
-        "title":                "Breaker of Infinities",
-        "chapters": [
-            {
-                "start_url":    "",
-                "end_url":      ""
-            },
-        ]
-    },
-    {
-        "name":                 "wheel-smashing-lord",
-        "title":                "Wheel Smashing Lord",
-        "chapters": [
-            {
-                "start_url":    "",
-                "end_url":      ""
-            },
-        ]
-    }
-]
 CWD = os.getcwd()
+BOOKS_INFO_FILE = f"{CWD}/misc/book_info.json"
+
+with open(BOOKS_INFO_FILE, "r", encoding="utf8") as f:
+    BOOKS_INFO = json.load(f)
 
 
 @click.command()
@@ -280,13 +183,14 @@ def get_chapter_details(
                 entry_ele_children_extracted.append(e.get_attribute("src"))
 
         comic_ele = driver.find_element(By.ID, "comic")
-        img_eles = comic_ele.find_elements(By.TAG_NAME, "img")
+        image_eles = comic_ele.find_elements(By.TAG_NAME, "img")
+        image_urls = [i.get_attribute("src") for i in image_eles]
 
         temp_page_details = {
             "page_url":     driver.current_url,
             "title":        title_ele.text,
-            "image_urls":   [i.get_attribute("src") for i in img_eles],
-            "alt_text":     img_eles[0].get_attribute('alt'),
+            # "image_urls":   [i.get_attribute("src") for i in image_eles],
+            "alt_text":     image_eles[0].get_attribute('alt'),
             "desc_list":    entry_ele_children_extracted,
         }
 
