@@ -22,10 +22,9 @@ def main():
     """
 
     book = 5
-    # book_name = BOOKS_INFO[book-1]['name']
-    # book_dir = f"{CWD}/out/{book}-{book_name}"
-    book_dir = f"{CWD}/out/{book}-{BOOKS_INFO[book-1]['name']}"
-    book_dir_relative_to_result_file = f"./{book}-{BOOKS_INFO[book-1]['name']}"
+    book_name = BOOKS_INFO[book-1]['name']
+    book_dir = f"{CWD}/out/{book}-{book_name}"
+    book_dir_relative_to_result_file = f"./{book}-{book_name}"
 
     # chapters = list(range(len(BOOKS_INFO[book-1]["chapters"]))) ### [0,1,2,3,4,5]
     chapters = [3]

@@ -57,7 +57,7 @@ Etc.
 <!-- TODO: Use click for CMD args & add help text here -->
 
 
-## HTML Renderer - Examples
+## Render HTML - Examples
 asd
 
     render_chapter_html.py -b 1 -c 1
@@ -67,7 +67,7 @@ asd
 - Async downloads
 - Detect if image exists, handle --force_get_images
 - Improve get_details() logic for --force_get_details & existing files
-- Add instructions for `render_html.py`
+- Add instructions for `render_chapter_html.py`
 - Add book & chapter CLI options for `render_chapter_html.py`
 - Use single `<div class="columns is-mobile is-centered">` element
 - Convert static HTML to Flask, with home pages for books & chapters
