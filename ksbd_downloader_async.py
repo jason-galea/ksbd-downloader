@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 
+from urllib.request import urlretrieve
+from urllib.parse import urlparse
+from glob import glob
 import os
 import json
 import click
@@ -8,116 +11,15 @@ import click
 # import argparse
 import httpx
 import asyncio
-
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
-from urllib.request import urlretrieve
-from urllib.parse import urlparse
-from glob import glob
 
+from books_info import BOOKS_INFO
+
+
+### Globals
 GET_IMAGE_WORKER_COUNT = 4
-BOOKS_INFO: list = [
-    {
-        "name":                 "kill-six-billion-demons",
-        "title":                "Kill Six Billion Demons",
-        "chapters": [
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-1/",
-                # "start_url":    "https://killsixbilliondemons.com/comic/ksbd-1-8/",
-                # "end_url":      "https://killsixbilliondemons.com/comic/ksbd-1-8/"
-                "end_url":      "https://killsixbilliondemons.com/comic/ksbd-1-17/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-0/",
-                # "start_url":    "https://killsixbilliondemons.com/comic/ksbd-2-34/",
-                "end_url":      "https://killsixbilliondemons.com/comic/prim-leaves-her-fathers-house/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/chapter-3/",
-                "end_url":      "https://killsixbilliondemons.com/comic/ksbd-3-53-54/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/kill-six-billion-demons-chapter-4/",
-                "end_url":      "https://killsixbilliondemons.com/comic/aesma-and-the-three-masters-part-3-and-4/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/ksbd-5-1/",
-                "end_url":      "https://killsixbilliondemons.com/comic/ksbd-5-89-to-5-90/"
-            },
-        ]
-    },
-    {
-        "name":                 "wielder-of-names",
-        "title":                "Wielder of Names",
-        "chapters": [
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-cover/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-1-18/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-2-19/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-2-39-pursuers/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-3-39/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-3-59/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-4-60-palace-of-radiance/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-4-80/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-5-81/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-5-102/"
-            },
-            {
-                "start_url":    "https://killsixbilliondemons.com/comic/wielder-of-names-6-103-to-6-104-war-of-the-teacups/",
-                "end_url":      "https://killsixbilliondemons.com/comic/wielder-of-names-6-123/"
-            },
-        ]
-    },
-    {
-        "name":                 "seek-of-thrones",
-        "title":                "Seeker of Thrones",
-        "chapters": [
-            {
-                "start_url":    "",
-                "end_url":      ""
-            },
-        ]
-    },
-    {
-        "name":                 "king-of-swords",
-        "title":                "King of Swords",
-        "chapters": [
-            {
-                "start_url":    "",
-                "end_url":      ""
-            },
-        ]
-    },
-    {
-        "name":                 "breaker-of-infinities",
-        "title":                "Breaker of Infinities",
-        "chapters": [
-            {
-                "start_url":    "",
-                "end_url":      ""
-            },
-        ]
-    },
-    {
-        "name":                 "wheel-smashing-lord",
-        "title":                "Wheel Smashing Lord",
-        "chapters": [
-            {
-                "start_url":    "",
-                "end_url":      ""
-            },
-        ]
-    }
-]
 
 
 @click.command()
@@ -141,7 +43,7 @@ def main(
     ### Args
     if not book:
         exit(f"==> ERROR: Please provide the number of the book to download, from 1-6")
-    
+
     if not chapter:
         print(f"==> INFO: No chapter specified, defaulting to all chapters")
         chapters = list(range(len(BOOKS_INFO[book-1]["chapters"]))) ### [0,1,2,3,4,5]
@@ -171,7 +73,7 @@ def main(
     # create_dirs(DOWNLOAD_DIR)
     create_dirs(BOOK_DIR)
 
-    
+
     ### Create webdriver
     print("==> INFO: Initialising webdriver")
     driver_options = Options()
@@ -182,7 +84,7 @@ def main(
 
 
     for c in chapters:
-        
+
         chapter_details_file = f"{BOOK_DIR}/{c+1}-details.json"
 
 
@@ -213,7 +115,7 @@ def main(
             with open(chapter_details_file, "r", encoding="utf8") as f:
                 chapter_details = json.load(f)
 
-        
+
         # if (force_get_details) and (os.path.exists(chapter_details_file)):
         #     print(f"==> INFO: 'force_get_details' enabled, removing '{os.path.basename(chapter_details_file)}'")
         #     os.remove(chapter_details_file)
@@ -230,13 +132,13 @@ def main(
 
         #         with open(chapter_details_file, "w", encoding="utf8") as f:
         #             f.write(standard_json_dumps(chapter_details))
-            
+
         #     elif not force_get_details:
 
 
         #     else:
         #         print(f"==> INFO: Chapter details file '{chapter_details_file}' already exists")
-            
+
 
         # else:
         #     print(f"==> INFO: Skipped downloading chapter details due to 'dont_get_details'")
@@ -272,7 +174,7 @@ def main(
             # with cProfile.Profile() as pr:
             #     # get_chapter_images(BOOK_DIR, chapter_details, c)
             #     get_chapter_images_async(BOOK_DIR, chapter_details, c)
-            
+
             # stats = pstats.Stats(pr)
             # stats.sort_stats(pstats.SortKey.TIME)
             # stats.print_stats()
@@ -372,7 +274,7 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
 #                 #     print(f"==> INFO: Downloaded image '{os.path.basename(image_file)}'")
 #                 # else:
 #                 #     print(f"==> INFO: Image '{os.path.basename(image_file)}' already exists")
-    
+
 
 #         ### Create worker tasks
 #         # tasks = [asyncio.create_task(get_chapter_images_worker(i)) for i in range(GET_IMAGE_WORKER_COUNT)]
@@ -433,7 +335,7 @@ def get_chapter_details(driver: webdriver.Firefox, start_url: str, end_url: str)
 #             #     print(f"==> INFO: Downloaded image '{os.path.basename(image_file)}'")
 #             # else:
 #             #     print(f"==> INFO: Image '{os.path.basename(image_file)}' already exists")
-    
+
 #     async with httpx.AsyncClient() as client:
 
 #         ### Create worker tasks
@@ -500,7 +402,7 @@ if (__name__ == "__main__"):
 
     # with cProfile.Profile() as pr:
     #     main()
-    
+
     # stats = pstats.Stats(pr)
     # stats.sort_stats(pstats.SortKey.TIME)
     # stats.print_stats()

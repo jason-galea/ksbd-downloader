@@ -7,35 +7,33 @@ Script to download the webcomic "Kill Six Billion Demons".
 from urllib.request import urlretrieve
 from urllib.parse import urlparse
 from glob import glob
-
 import os
 import sys
 import json
 import click
-
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
-CWD = os.getcwd()
-BOOKS_INFO_FILE = f"{CWD}/misc/book_info.json"
+from books_info import BOOKS_INFO
 
-with open(BOOKS_INFO_FILE, "r", encoding="utf8") as f:
-    BOOKS_INFO = json.load(f)
+
+### Globals
+CWD = os.getcwd()
 
 
 @click.command()
 @click.option("-b", "--book", type=int, help="Book # to download, from 1-6.")
 @click.option("-c", "--chapter", type=int, help="Chapter # to download. Defaults to downloading all chapters")
-@click.option("-dgd", "--dont_get_details", is_flag=True, help="Only download page details, ignoring images")
-@click.option("-dgi", "--dont_get_images", is_flag=True, help="Only download images, assuming image URLs are known")
+@click.option("-od", "--only_details", is_flag=True, help="Only download images, assuming image URLs are known")
+@click.option("-oi", "--only_images", is_flag=True, help="Only download page details, ignoring images")
 @click.option("-fgd", "--force_get_details", is_flag=True, help="Ignore previously downloaded details")
 @click.option("-fgi", "--force_get_images", is_flag=True, help="Ignore previously downloaded images")
 def main(
     book: int,
     chapter: int,
-    dont_get_details: bool,
-    dont_get_images: bool,
+    only_images: bool,
+    only_details: bool,
     force_get_details: bool,
     force_get_images: bool
 ):
@@ -44,23 +42,24 @@ def main(
     """
 
     if not book:
-        sys.exit("==> ERROR: Please provide the number of the book to download, from 1-6")
+        sys.exit("==> ERROR: Book number must be specified")
 
-    if not chapter:
-        print("==> INFO: No chapter specified, defaulting to all chapters")
-        chapters = list(range(len(BOOKS_INFO[book-1]["chapters"]))) ### [0,1,2,3,4,5]
-    else:
-        chapters = [chapter-1] ### [0]
+    if (only_images and only_details):
+        sys.exit("==> ERROR: You must download either page details or images")
 
-    if (dont_get_details and dont_get_images):
-        sys.exit("==> ERROR: You must download either page details or images, exiting early")
-
+    chapters_info = BOOKS_INFO[book-1]["chapters"]
     book_dir = f"{CWD}/out/{book}-{BOOKS_INFO[book-1]['name']}"
+
+    if chapter:
+        chapters = [chapter-1] ### [0]
+    else:
+        print("==> INFO: No chapter specified, defaulting to all chapters")
+        chapters = list(range(len(chapters_info))) ### [0,1,2,3,4,5]
 
     # print(f"==> DEBUG: book = {book}")
     # print(f"==> DEBUG: chapter = {chapter}")
-    # print(f"==> DEBUG: get_details = {dont_get_details}")
-    # print(f"==> DEBUG: get_images = {dont_get_images}")
+    # print(f"==> DEBUG: get_details = {only_images}")
+    # print(f"==> DEBUG: get_images = {only_details}")
     # print(f"==> DEBUG: CWD = {CWD}")
     # print(f"==> DEBUG: DOWNLOAD_DIR = {DOWNLOAD_DIR}")
     # print(f"==> DEBUG: book_dir = {book_dir}")
@@ -77,9 +76,8 @@ def main(
     )
 
     for c in chapters:
-
-        ### NOTE: Keep details files separate from image files
         chapter_details_file = f"{book_dir}/chapter-{c+1}-details.json"
+        start_url, end_url = chapters_info[c]
 
 
         ### Get details
@@ -90,21 +88,23 @@ def main(
 
         if not os.path.exists(chapter_details_file):
 
-            if not dont_get_details:
+            if not only_images:
 
+                print(f"\n==> INFO: Begin downloading page details for book {book}, chapter {c+1}")
                 chapter_details = get_chapter_details(
                     driver=driver,
-                    book=book,
+                    start_url=start_url,
+                    end_url=end_url,
                     chapter=c,
-                    **BOOKS_INFO[book-1]["chapters"][c]
                 )
+                print(f"==> INFO: Finished downloading page details for book {book}, chapter {c+1}")
 
                 print(f"==> INFO: Writing chapter details to '{chapter_details_file}'")
                 with open(chapter_details_file, "w", encoding="utf8") as f:
                     f.write(standard_json_dumps(chapter_details))
 
             else:
-                print("==> INFO: Skipped downloading chapter details due to 'dont_get_details'")
+                print("==> INFO: Skipped downloading chapter details due to 'only_images'")
 
         else:
             print(f"==> INFO: Detected existing chapter details file '{chapter_details_file}'")
@@ -117,7 +117,7 @@ def main(
 
 
         ### Get images
-        if not dont_get_images:
+        if not only_details:
 
             if force_get_images:
                 for f in glob(f"./out/{book}-*/{c+1}-*.jpg"):
@@ -130,7 +130,7 @@ def main(
             get_chapter_images(book, book_dir, chapter_details, c)
 
         else:
-            print("==> INFO: Skipped downloading images due to 'dont_get_images'")
+            print("==> INFO: Skipped downloading images due to 'only_details'")
 
 
 def create_dirs(d: str) -> None:
@@ -152,16 +152,16 @@ def standard_json_dumps(var: any) -> str:
 
 
 def get_chapter_details(
-        driver: webdriver.Firefox, start_url: str, end_url: str,
-        book: int, chapter: int
-    ) -> list:
+    driver: webdriver.Firefox,
+    chapter: int,
+    start_url: str,
+    end_url: str,
+) -> list:
     """
     Iterates through given start/end URLs to get details of chapter
 
     Returns list of details, containing dictionaries for each page
     """
-
-    print(f"\n==> INFO: Begin downloading page details for book {book}, chapter {chapter+1}")
 
 
     ### DOWNLOAD
@@ -180,7 +180,7 @@ def get_chapter_details(
 
         desc_list = []
         for e in entry_ele_children:
-            
+
             temp_src = temp_text = None
 
             if (e.tag_name == "p") and not (e.find_elements(By.TAG_NAME, "a")):
@@ -242,15 +242,15 @@ def get_chapter_details(
         else:
             break
 
-    print(f"==> INFO: Finished downloading page details for book {book}, chapter {chapter+1}")
-
     return chapter_details
 
 
 def get_chapter_images(
-        book: int, book_dir: str,
-        chapter_details: list, chapter: int,
-    ) -> None:
+    book: int,
+    book_dir: str,
+    chapter_details: list,
+    chapter: int,
+) -> None:
     """
     Downloads images :o
     """

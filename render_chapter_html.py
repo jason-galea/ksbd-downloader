@@ -7,14 +7,14 @@ Script to render downloaded chapter details & images into an HTML document
 import os
 import json
 # import jinja2
-
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-CWD = os.getcwd()
-BOOKS_INFO_FILE = f"{CWD}/misc/book_info.json"
+from books_info import BOOKS_INFO
 
-with open(BOOKS_INFO_FILE, "r", encoding="utf8") as book_f:
-    BOOKS_INFO = json.load(book_f)
+
+### Globals
+CWD = os.getcwd()
+
 
 def main():
     """
