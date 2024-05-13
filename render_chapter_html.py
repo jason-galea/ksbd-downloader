@@ -21,7 +21,7 @@ def main():
     Main
     """
 
-    book = 2
+    book = 5
     # book_name = BOOKS_INFO[book-1]['name']
     # book_dir = f"{CWD}/out/{book}-{book_name}"
     book_dir = f"{CWD}/out/{book}-{BOOKS_INFO[book-1]['name']}"

@@ -65,48 +65,48 @@ BOOKS_INFO = [
         "title":    "Seeker of Thrones",
         "chapters": [
             (
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones/",
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-1-7/"
+                f"{URL}/seeker-of-thrones/",
+                f"{URL}/seeker-of-thrones-1-7/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-2-8/",
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-2-16/"
+                f"{URL}/seeker-of-thrones-2-8/",
+                f"{URL}/seeker-of-thrones-2-16/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-3-17/",
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-3-22/"
+                f"{URL}/seeker-of-thrones-3-17/",
+                f"{URL}/seeker-of-thrones-3-22/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/seekerofthrones4-23/",
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-4-31/"
+                f"{URL}/seekerofthrones4-23/",
+                f"{URL}/seeker-of-thrones-4-31/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-5-32-to-5-33/",
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-5-55/"
+                f"{URL}/seeker-of-thrones-5-32-to-5-33/",
+                f"{URL}/seeker-of-thrones-5-55/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-6-56/",
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-6-73-the-door/"
+                f"{URL}/seeker-of-thrones-6-56/",
+                f"{URL}/seeker-of-thrones-6-73-the-door/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-7-74/",
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-7-87/"
+                f"{URL}/seeker-of-thrones-7-74/",
+                f"{URL}/seeker-of-thrones-7-87/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-8-88/",
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-8-100/"
+                f"{URL}/seeker-of-thrones-8-88/",
+                f"{URL}/seeker-of-thrones-8-100/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-9-101/",
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-10-122/"
+                f"{URL}/seeker-of-thrones-9-101/",
+                f"{URL}/seeker-of-thrones-10-122/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-10-123/",
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-10-144/"
+                f"{URL}/seeker-of-thrones-10-123/",
+                f"{URL}/seeker-of-thrones-10-144/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-11-145/",
-                "https://killsixbilliondemons.com/comic/seeker-of-thrones-11-153/"
+                f"{URL}/seeker-of-thrones-11-145/",
+                f"{URL}/seeker-of-thrones-11-153/"
             )
         ]
     },
@@ -115,44 +115,44 @@ BOOKS_INFO = [
         "title":    "King of Swords",
         "chapters": [
             (
-                "https://killsixbilliondemons.com/comic/book-4-king-of-swords/",
-                "https://killsixbilliondemons.com/comic/king-of-swords-1-10/"
+                f"{URL}/book-4-king-of-swords/",
+                f"{URL}/king-of-swords-1-10/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/king-of-swords-2-11/",
-                "https://killsixbilliondemons.com/comic/king-of-swords-2-28/"
+                f"{URL}/king-of-swords-2-11/",
+                f"{URL}/king-of-swords-2-28/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/king-of-swords-3-29/",
-                "https://killsixbilliondemons.com/comic/king-of-swords-3-33/"
+                f"{URL}/king-of-swords-3-29/",
+                f"{URL}/king-of-swords-3-33/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/king-of-swords-4-34/",
-                "https://killsixbilliondemons.com/comic/king-of-swords-4-45/"
+                f"{URL}/king-of-swords-4-34/",
+                f"{URL}/king-of-swords-4-45/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/king-of-swords-5-46/",
-                "https://killsixbilliondemons.com/comic/king-of-swords-5-50/"
+                f"{URL}/king-of-swords-5-46/",
+                f"{URL}/king-of-swords-5-50/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/king-of-swords-6-51/",
-                "https://killsixbilliondemons.com/comic/king-of-swords-6-59/"
+                f"{URL}/king-of-swords-6-51/",
+                f"{URL}/king-of-swords-6-59/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/king-of-swords-7-60/",
-                "https://killsixbilliondemons.com/comic/king-of-swords-7-69/"
+                f"{URL}/king-of-swords-7-60/",
+                f"{URL}/king-of-swords-7-69/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/king-of-swords-70-71-path-to-glory/",
-                "https://killsixbilliondemons.com/comic/king-of-swords-8-89/"
+                f"{URL}/king-of-swords-70-71-path-to-glory/",
+                f"{URL}/king-of-swords-8-89/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/king-of-swords-9-90/",
-                "https://killsixbilliondemons.com/comic/king-of-swords-9-130/"
+                f"{URL}/king-of-swords-9-90/",
+                f"{URL}/king-of-swords-9-130/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/king-of-swords-10-131/",
-                "https://killsixbilliondemons.com/comic/king-of-swords-174-177-finale/"
+                f"{URL}/king-of-swords-10-131/",
+                f"{URL}/king-of-swords-174-177-finale/"
             )
         ]
     },
@@ -161,20 +161,20 @@ BOOKS_INFO = [
         "title":    "Breaker of Infinities",
         "chapters": [
             (
-                "https://killsixbilliondemons.com/comic/kill-six-billion-demons-breaker-of-infinities/",
-                "https://killsixbilliondemons.com/comic/breaker-of-infinities-1-41/"
+                f"{URL}/kill-six-billion-demons-breaker-of-infinities/",
+                f"{URL}/breaker-of-infinities-1-41/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/boi-2-42/",
-                "https://killsixbilliondemons.com/comic/breaker-of-infinities-2-78-to-2-81-blood-sated-sword-soul/"
+                f"{URL}/boi-2-42/",
+                f"{URL}/breaker-of-infinities-2-78-to-2-81-blood-sated-sword-soul/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/breaker-of-infinities-3-82-to-3-83/",
-                "https://killsixbilliondemons.com/comic/breaker-of-infinities-3-120/"
+                f"{URL}/breaker-of-infinities-3-82-to-3-83/",
+                f"{URL}/breaker-of-infinities-3-120/"
             ),
             (
-                "https://killsixbilliondemons.com/comic/breaker-of-infinities-4-121-to-4-122/",
-                "https://killsixbilliondemons.com/comic/breaker-of-infinities-4-182-to-4-183/"
+                f"{URL}/breaker-of-infinities-4-121-to-4-122/",
+                f"{URL}/breaker-of-infinities-4-182-to-4-183/"
             )
         ]
     },
@@ -183,12 +183,16 @@ BOOKS_INFO = [
         "title":    "Wheel Smashing Lord",
         "chapters": [
             (
-                "",
-                ""
+                f"{URL}/kill-six-billion-demons-wheel-smashing-lord/",
+                f"{URL}/wheel-smashing-lord-1-27-to-1-28/"
             ),
             (
-                "",
-                ""
+                f"{URL}/wheel-smashing-lord-2-29-to-2-30/",
+                f"{URL}/wheel-smashing-lord-2-48-to-2-49/"
+            ),
+            (
+                f"{URL}/wheel-smashing-lord-3-50-to-3-51/",
+                f"{URL}/wheel-smashing-lord-3-93/"
             ),
             (
                 "",
